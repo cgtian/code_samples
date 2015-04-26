@@ -1,19 +1,4 @@
 /*
-notes on busineess rules:
-if a mix of rcts and regents, cant use a regents in the +1 section that corresponds to a subject you passed with a rct
-
-students can use one or more pbats
-
-pbats can't be used towards an advanced regents diploma
-
-pbats and rcts can mix
-*/
-
-
-
-
-
-/*
 pathways data sharing pull for april 2015
 
 code outline
@@ -34,7 +19,7 @@ code outline
 [4] best exam performances for students who were one social studies exam away from meeting exam requirements pre-pathways who now meet exam requirements using the stem regents pathway
 
 contact
-chris tian - ctian2@schools.nyc.gov
+chris tian - chris.tian(at)nyu.edu
 */
 
 
@@ -43,14 +28,25 @@ chris tian - ctian2@schools.nyc.gov
 
 -----[1] active cohort Q (or older) students plus their biographical information
 if object_id('tempdb..#s') is not null drop table #s
-select distinct student_id, first_nam, last_nam, school_dbn, grd9_entry_cde, grade_level, lep_flg, iep_spec_ed_flg, s504
+select distinct student_id,
+first_nam,
+last_nam,
+school_dbn,
+grd9_entry_cde,
+grade_level,
+lep_flg,
+iep_spec_ed_flg,
+s504
 into #s
+
 from ats_demo.dbo.biogdata
+
 where status='A'
 and grd9_entry_cde<='Q'
 and substring(school_dbn,1,2) not in ('84','88')
 and substring(school_dbn,4,3)<>'444'
----note: need to exclude d79 students who graduated or received an exiting credential at some point
+
+
 
 
 
@@ -238,7 +234,9 @@ from #best_exams
 if object_id('tempdb..#one_away_advanced') is not null drop table #one_away_advanced
 select distinct student_id
 into #one_away_advanced
+
 from #best_exams_plus_counts
+
 where ct_advanced_regents65=8
 and (max_regents_us<65 or max_regents_global<65)
 
@@ -248,7 +246,9 @@ and (max_regents_us<65 or max_regents_global<65)
 if object_id('tempdb..#one_away_regents') is not null drop table #one_away_regents
 select distinct student_id
 into #one_away_regents
+
 from #best_exams_plus_counts
+
 where ct_mixr=4
 and (max_pbat_ss<65 or max_pbat_ss is null)
 and	(
@@ -265,7 +265,9 @@ and student_id not in (select student_id from #one_away_advanced)
 if object_id('tempdb..#meets_reqs_local') is not null drop table #meets_reqs_local
 select distinct student_id
 into #meets_reqs_local
+
 from #best_exams_plus_counts
+
 where iep_spec_ed_flg='Y'
 and	(
 		ct_mixl=5				---this condition is not necessary for the purposes of our analysis but is included to be consistent with other analyses in april 2015's data sharing series
@@ -278,7 +280,9 @@ and	(
 if object_id('tempdb..#one_away_local') is not null drop table #one_away_local
 select distinct student_id
 into #one_away_local
+
 from #best_exams_plus_counts
+
 where iep_spec_ed_flg='Y'
 and ct_mixl=4
 and (max_pbat_ss<65 or max_pbat_ss is null)
@@ -293,7 +297,7 @@ and (
 			and (max_rct_global<65 or max_rct_global is null)
 		)
 	)
-and	student_id not in (select student_id from #meets_reqs_local)
+and student_id not in (select student_id from #meets_reqs_local)
 and student_id not in (select student_id from #one_away_advanced)
 and student_id not in (select student_id from #one_away_regents)
 ---note: only partially takes into account compensatory score option (via #meets_reqs_local exclusion)
@@ -303,8 +307,13 @@ and student_id not in (select student_id from #one_away_regents)
 
 
 -----[4] best exam performances for students who were one social studies exam away from meeting exam requirements pre-pathways who now meet exam requirements using the stem regents pathway
-select *, 0 as dummy_local_requirements, 0 as dummy_regents_requirements, 1 as dummy_advanced_requirements
+select *,
+0 as dummy_local_requirements,
+0 as dummy_regents_requirements,
+1 as dummy_advanced_requirements
+
 from #best_exams
+
 where student_id in (select student_id from #one_away_advanced)
 and	(
 		(max_regents_living>=65 and max_regents_earth>=65 and max_regents_chemistry>=65)
@@ -314,8 +323,13 @@ and	(
 
 union
 
-select *, 0 as dummy_local_requirements, 1 as dummy_regents_requirements, 0 as dummy_advanced_requirements
+select *,
+0 as dummy_local_requirements,
+1 as dummy_regents_requirements,
+0 as dummy_advanced_requirements
+
 from #best_exams
+
 where student_id in (select student_id from #one_away_regents)
 and	(
 		(max_regents_alg1>=65 and max_regents_geometry>=65)
@@ -331,8 +345,13 @@ and	(
 
 union
 
-select *, 1 as dummy_local_requirements, 0 as dummy_regents_requirements, 0 as dummy_advanced_requirements
+select *,
+1 as dummy_local_requirements,
+0 as dummy_regents_requirements,
+0 as dummy_advanced_requirements
+
 from #best_exams
+
 where student_id in (select student_id from #one_away_local)
 and	(
 		(max_regents_alg1>=55 and max_regents_geometry>=55)
@@ -346,5 +365,9 @@ and	(
 		or (max_regents_chemistry>=55 and max_regents_physics>=55)
 	)
 
-order by dummy_advanced_requirements, dummy_regents_requirements, dummy_local_requirements, student_id asc
+order by
+dummy_advanced_requirements,
+dummy_regents_requirements,
+dummy_local_requirements,
+student_id asc
 ---note: does not take into account compensatory score option
