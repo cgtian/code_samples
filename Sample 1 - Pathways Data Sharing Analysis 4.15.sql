@@ -70,12 +70,12 @@ sm.schoolyear,
 sm.termcd,
 sm.coursecd,
 convert	(int,
-				case
-				when sm.mark in ('A','CR','P','PL','PR','WA','WG','WX') and substring(sm.coursecd,2,2) in ('XR','XZ','ZR','XQ','XG','XT','X3') then '65'
-				when sm.mark in ('P') and substring(sm.coursecd,2,2) in ('CT','XC') then '65'
-				when sm.mark in ('A','S') and substring(sm.coursecd,2,2) in ('CT','XC') then '40'
-				else sm.mark end
-		) as mark
+		case
+		when sm.mark in ('A','CR','P','PL','PR','WA','WG','WX') and substring(sm.coursecd,2,2) in ('XR','XZ','ZR','XQ','XG','XT','X3') then '65'
+		when sm.mark in ('P') and substring(sm.coursecd,2,2) in ('CT','XC') then '65'
+		when sm.mark in ('A','S') and substring(sm.coursecd,2,2) in ('CT','XC') then '40'
+		else sm.mark end
+	) as mark
 into #exam_list
 
 from #s as s
@@ -84,7 +84,7 @@ inner join sif.dbo.hsst_tbl_studentmarks as sm
 on s.student_id=sm.studentid
 
 where sm.isexam=1
-and (
+and 	(
 		substring(sm.coursecd,2,2) in ('XR','XZ','ZR','XC','XQ','XG','XT','X3') or substring(sm.coursecd,1,3)='RCT'
 	)
 and sm.mark not in ('ABS','Z','INV','F','MIS')

@@ -124,13 +124,11 @@ and b.status='A'
 if object_id('tempdb..#sa_int3') is not null drop table #sa_int3
 select studentid
 into #sa_int3
-
 from #sa_int1
 
 union
 
 select studentid
-
 from #sa_int2
 
 
@@ -140,16 +138,16 @@ select studentid
 into #sa_final
 from #sa_int3
 where studentid not in	(
-							select distinct b.id 
-							from spr_int.prl.raw_biog_prog_union as b
-							inner join spr_int.prl.raw_graduation_stu_4yr as g
-							on g.id=b.id
-							where g.cohort='R'
-							and b.admission_date>=convert(datetime,'2012-09-01')
-							and	(
-									substring(b.dbn,1,2) in ('75','79','84','88') or substring(b.dbn,4,3)='444'
-								)
-						)
+				select distinct b.id 
+				from spr_int.prl.raw_biog_prog_union as b
+				inner join spr_int.prl.raw_graduation_stu_4yr as g
+				on g.id=b.id
+				where g.cohort='R'
+				and b.admission_date>=convert(datetime,'2012-09-01')
+				and	(
+						substring(b.dbn,1,2) in ('75','79','84','88') or substring(b.dbn,4,3)='444'
+					)
+			)
 
 
 
@@ -163,16 +161,16 @@ from atslink.ats_demo.dbo.biogdata
 where status='A'
 and grd9_entry_cde='R'
 and student_id not in	(
-							select distinct b.id 
-							from spr_int.prl.raw_biog_prog_union as b
-							inner join spr_int.prl.raw_graduation_stu_4yr as g
-							on g.id=b.id
-							where g.cohort='R'
-							and b.admission_date>=convert(datetime,'2012-09-01')
-							and	(
-									substring(b.dbn,1,2) in ('75','79','84','88') or substring(b.dbn,4,3)='444'
-								)
-						)
+				select distinct b.id 
+				from spr_int.prl.raw_biog_prog_union as b
+				inner join spr_int.prl.raw_graduation_stu_4yr as g
+				on g.id=b.id
+				where g.cohort='R'
+				and b.admission_date>=convert(datetime,'2012-09-01')
+				and	(
+						substring(b.dbn,1,2) in ('75','79','84','88') or substring(b.dbn,4,3)='444'
+					)
+			)
 
 
 
