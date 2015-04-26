@@ -124,11 +124,13 @@ and b.status='A'
 if object_id('tempdb..#sa_int3') is not null drop table #sa_int3
 select studentid
 into #sa_int3
+
 from #sa_int1
 
 union
 
 select studentid
+
 from #sa_int2
 
 
@@ -136,7 +138,9 @@ from #sa_int2
 if object_id('tempdb..#sa_final') is not null drop table #sa_final
 select studentid
 into #sa_final
+
 from #sa_int3
+
 where studentid not in	(
 				select distinct b.id 
 				from spr_int.prl.raw_biog_prog_union as b
@@ -157,7 +161,9 @@ where studentid not in	(
 if object_id('tempdb..#s') is not null drop table #s
 select distinct student_id
 into #s
+
 from atslink.ats_demo.dbo.biogdata
+
 where status='A'
 and grd9_entry_cde='R'
 and student_id not in	(
