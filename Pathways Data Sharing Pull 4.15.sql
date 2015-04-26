@@ -54,7 +54,7 @@ and substring(school_dbn,4,3)<>'444'
 
 
 -----[2] best exam performances for each student in the population
----	[2a] exams for students in the population
+---[2a] exams for students in the population
 if object_id('tempdb..#exam_list') is not null drop table #exam_list
 select distinct
 s.student_id,
@@ -233,7 +233,7 @@ from #best_exams
 
 
 -----[3] students who are one social studies exam away from meeting exam requirements
----	[3a] students who are one social studies exam away from meeting exam requirements for an advanced regents diploma
+---[3a] students who are one social studies exam away from meeting exam requirements for an advanced regents diploma
 if object_id('tempdb..#one_away_advanced') is not null drop table #one_away_advanced
 select distinct student_id
 into #one_away_advanced
@@ -263,8 +263,8 @@ and student_id not in (select student_id from #one_away_advanced)
 
 
 
----	[3c] students who are one social studies exam away from meeting exam requirements for a local diploma
--- [3ci] students who meet exam requirements for a local diploma
+---[3c] students who are one social studies exam away from meeting exam requirements for a local diploma
+--[3ci] students who meet exam requirements for a local diploma
 if object_id('tempdb..#meets_reqs_local') is not null drop table #meets_reqs_local
 select distinct student_id
 into #meets_reqs_local

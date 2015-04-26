@@ -76,7 +76,7 @@ and substring(school_dbn,4,3)<>'444'
 
 
 -----[3] active cohort r students who have taken or are taking algebra 2
----	[3a] active cohort r students scheduled for alg2 in 2014
+---[3a] active cohort r students scheduled for alg2 in 2014
 if object_id('tempdb..#sa_int1') is not null drop table #sa_int1
 select distinct sr.studentid
 into #sa_int1
@@ -179,7 +179,7 @@ and student_id not in	(
 
 
 -----[5] various demographic breakdowns for active cohort r students who have taken or are taking algebra 2
----	[5a] race breakdown for active cohort r students who have taken or are taking algebra 2 
+---[5a] race breakdown for active cohort r students who have taken or are taking algebra 2 
 select 
 case when b1.ethnic_cde in ('2','C','D') then 'Asian'
 when b1.ethnic_cde in ('3','A') then 'Hispanic'
@@ -254,7 +254,7 @@ end
 
 
 -----[6] various demographic breakdowns for active cohort r students						
----	[6a] race breakdown for active cohort r students
+---[6a] race breakdown for active cohort r students
 select 
 case when b1.ethnic_cde in ('2','C','D') then 'Asian'
 when b1.ethnic_cde in ('3','A') then 'Hispanic'
