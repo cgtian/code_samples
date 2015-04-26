@@ -135,7 +135,16 @@ and c.schoolyear=e.schoolyear
 and c.termcd=e.termcd
 and c.coursecd=e.coursecd
 
-group by e.student_id, e.first_nam, e.last_nam, e.school_dbn, e.grd9_entry_cde, e.grade_level, e.lep_flg, e.iep_spec_ed_flg, e.s504
+group by
+e.student_id,
+e.first_nam,
+e.last_nam,
+e.school_dbn,
+e.grd9_entry_cde,
+e.grade_level,
+e.lep_flg,
+e.iep_spec_ed_flg,
+e.s504
 
 
 
