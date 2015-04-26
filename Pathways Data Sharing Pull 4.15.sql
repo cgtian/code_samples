@@ -1,5 +1,8 @@
 /*
-pathways data sharing pull for april 2015
+pathways data sharing analysis for april 2015
+
+description
+this analysis measures the immediate impact of the newly legislated pathways exam requirements on hs seniors' prospects for graduation (i.e. how many hs seniors who previously did not meet exam requirements to graduate now meet the new pathways exam requirements?)
 
 code outline
 [1] active cohort q (or older) students plus their biographical information
