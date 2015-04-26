@@ -8,7 +8,7 @@ code outline
 [1] active cohort q (or older) students plus their biographical information
 
 [2] best exam performances for each student in the population
-	[2a] exams for students in the population
+	[2a] exams for each student in the population
 	[2b] best exam performances for each student in the population
 	[2c] best exam performances for each student in the population plus counts of exams above various thresholds
 
@@ -54,7 +54,7 @@ and substring(school_dbn,4,3)<>'444'
 
 
 -----[2] best exam performances for each student in the population
----[2a] exams for students in the population
+---[2a] exams for each student in the population
 if object_id('tempdb..#exam_list') is not null drop table #exam_list
 select distinct
 s.student_id,
