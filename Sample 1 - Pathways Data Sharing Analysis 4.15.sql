@@ -289,12 +289,12 @@ from #best_exams_plus_counts
 where iep_spec_ed_flg='Y'
 and ct_mixl=4
 and (max_pbat_ss<65 or max_pbat_ss is null)
-and (
+and	(
 		(
 			(max_regents_us<55 or max_regents_us is null)
 			and (max_rct_us<65 or max_rct_us is null)
 		)
-	or	
+		or	
 		(	
 			(max_regents_global<55 or max_regents_global is null)
 			and (max_rct_global<65 or max_rct_global is null)
