@@ -134,70 +134,78 @@ student_id
 if object_id('tempdb..#exam_counts') is not null drop table #exam_counts
 
 select distinct
-student_id,
+s.student_id,
 
-  case	when max_regents_english>=65 then 1 else 0 end
-+ case	when max_regents_alg1>=65 then 1 else 0 end
-+ case	when max_regents_geometry>=65 then 1 else 0 end
-+ case	when max_regents_alg2>=65 then 1 else 0 end
-+ case	when max_regents_us>=65 then 1 else 0 end
-+ case	when max_regents_global>=65 then 1 else 0 end
+  case	when be.max_regents_english>=65 then 1 else 0 end
++ case	when be.max_regents_alg1>=65 then 1 else 0 end
++ case	when be.max_regents_geometry>=65 then 1 else 0 end
++ case	when be.max_regents_alg2>=65 then 1 else 0 end
++ case	when be.max_regents_us>=65 then 1 else 0 end
++ case	when be.max_regents_global>=65 then 1 else 0 end
 + case	when	(
-			  case	when max_regents_living>=65 then 1 else 0 end
-			+ case	when max_regents_earth>=65 then 1 else 0 end
-			+ case	when max_regents_chemistry>=65 then 1 else 0 end
-			+ case	when max_regents_physics>=65 then 1 else 0 end
+			  case	when be.max_regents_living>=65 then 1 else 0 end
+			+ case	when be.max_regents_earth>=65 then 1 else 0 end
+			+ case	when be.max_regents_chemistry>=65 then 1 else 0 end
+			+ case	when be.max_regents_physics>=65 then 1 else 0 end
 		)
 		>2
 	then 	2
 	else	(
-			  case	when max_regents_living>=65 then 1 else 0 end
-			+ case	when max_regents_earth>=65 then 1 else 0 end
-			+ case	when max_regents_chemistry>=65 then 1 else 0 end
-			+ case	when max_regents_physics>=65 then 1 else 0 end
+			  case	when be.max_regents_living>=65 then 1 else 0 end
+			+ case	when be.max_regents_earth>=65 then 1 else 0 end
+			+ case	when be.max_regents_chemistry>=65 then 1 else 0 end
+			+ case	when be.max_regents_physics>=65 then 1 else 0 end
 		)
 	end
-+ case	when max_lote>=65 then 1 else 0 end
++ case	when be.max_lote>=65 then 1 else 0 end
 as ct_advanced_regents65,
 
-  case	when max_regents_english>=65 then 1 else 0 end
-+ case	when max_regents_math>=65 then 1 else 0 end
-+ case	when max_regents_us>=65 then 1 else 0 end
-+ case	when max_regents_global>=65 then 1 else 0 end
-+ case	when max_regents_science>=65 then 1 else 0 end
+  case	when be.max_regents_english>=65 then 1 else 0 end
++ case	when be.max_regents_math>=65 then 1 else 0 end
++ case	when be.max_regents_us>=65 then 1 else 0 end
++ case	when be.max_regents_global>=65 then 1 else 0 end
++ case	when be.max_regents_science>=65 then 1 else 0 end
 as ct_regents65,
 
-  case	when max_regents_english>=55 then 1 else 0 end
-+ case	when max_regents_math>=55 then 1 else 0 end
-+ case	when max_regents_us>=55 then 1 else 0 end
-+ case	when max_regents_global>=55 then 1 else 0 end
-+ case	when max_regents_science>=55 then 1 else 0 end
+  case	when be.max_regents_english>=55 then 1 else 0 end
++ case	when be.max_regents_math>=55 then 1 else 0 end
++ case	when be.max_regents_us>=55 then 1 else 0 end
++ case	when be.max_regents_global>=55 then 1 else 0 end
++ case	when be.max_regents_science>=55 then 1 else 0 end
 as ct_regents55,
 
-  case	when max_regents_english>=45 then 1 else 0 end
-+ case	when max_regents_math>=45 then 1 else 0 end
-+ case	when max_regents_us>=45 then 1 else 0 end
-+ case	when max_regents_global>=45 then 1 else 0 end
-+ case	when max_regents_science>=45 then 1 else 0 end
+  case	when be.max_regents_english>=45 then 1 else 0 end
++ case	when be.max_regents_math>=45 then 1 else 0 end
++ case	when be.max_regents_us>=45 then 1 else 0 end
++ case	when be.max_regents_global>=45 then 1 else 0 end
++ case	when be.max_regents_science>=45 then 1 else 0 end
 as ct_regents45,
 
-  case	when max_regents_english>=65 then 1 else 0 end
-+ case	when max_regents_math>=65 or max_pbat_math>=65 then 1 else 0 end
-+ case	when max_regents_us>=65 or max_pbat_ss>=65 then 1 else 0 end
-+ case	when max_regents_global>=65 or max_pbat_ss>=65 then 1 else 0 end
-+ case	when max_regents_science>=65 or max_pbat_science>=65 then 1 else 0 end
+  case	when be.max_regents_english>=65 then 1 else 0 end
++ case	when be.max_regents_math>=65 or be.max_pbat_math>=65 then 1 else 0 end
++ case	when be.max_regents_us>=65 or be.max_pbat_ss>=65 then 1 else 0 end
++ case	when be.max_regents_global>=65 or be.max_pbat_ss>=65 then 1 else 0 end
++ case	when be.max_regents_science>=65 or be.max_pbat_science>=65 then 1 else 0 end
 as ct_mixr,
 
-  case	when max_regents_english>=55 or (max_rct_reading=65 and max_rct_writing=65) then 1 else 0 end
-+ case	when max_regents_math>=55 or max_rct_math=65 or max_pbat_math>=65 then 1 else 0 end
-+ case	when max_regents_us>=55 or max_rct_us=65 or max_pbat_ss>=65 then 1 else 0 end
-+ case	when max_regents_global>=55 or max_rct_global=65 or max_pbat_ss>=65 then 1 else 0 end
-+ case	when max_regents_science>=55 or max_rct_science=65 or max_pbat_science>=65 then 1 else 0 end
+  case	when s.iep_spec_ed_flg='Y'
+	then	(
+			  case	when be.max_regents_english>=55 or (be.max_rct_reading=65 and be.max_rct_writing=65) then 1 else 0 end
+			+ case	when be.max_regents_math>=55 or be.max_rct_math=65 or be.max_pbat_math>=65 then 1 else 0 end
+			+ case	when be.max_regents_us>=55 or be.max_rct_us=65 or be.max_pbat_ss>=65 then 1 else 0 end
+			+ case	when be.max_regents_global>=55 or be.max_rct_global=65 or be.max_pbat_ss>=65 then 1 else 0 end
+			+ case	when be.max_regents_science>=55 or be.max_rct_science=65 or be.max_pbat_science>=65 then 1 else 0 end
+		)
+	else NULL
+	end
 as ct_mixl
 
 into #exam_counts
 
-from #best_exams
+from #s as s
+
+inner join #best_exams as be
+on be.student_id=s.student_id
 
 
 
@@ -217,10 +225,16 @@ as ct_exams_away_local_cs
 
 into #exams_away_local_cs
 
-from #best_exams as be
+from #s as s
+
+inner join #best_exams as be
+on be.student_id=s.student_id
 
 inner join #exam_counts as ec
 on ec.student_id=be.student_id
+
+where
+s.iep_spec_ed_flg='Y'
 
 
 
@@ -297,7 +311,7 @@ from #best_exams_plus_counts
 
 where
 ct_advanced_regents65=8
-and (max_regents_us<65 or max_regents_global<65)
+and (max_regents_us<65 or max_regents_us is null or max_regents_global<65 or max_regents_global is null)
 
 
 

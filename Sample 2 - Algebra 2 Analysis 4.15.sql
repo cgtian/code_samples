@@ -2,7 +2,7 @@
 algebra 2 analysis for april 2015
 
 description
-this analysis measures the availability of algebra 2 courses citywide for cohort r students (on-track hs juniors)
+this analysis measures the availability of algebra 2 courses for cohort r students (on-track hs juniors)
 
 code outline
 [1] number of schools offering high school level alg2 in 2014
