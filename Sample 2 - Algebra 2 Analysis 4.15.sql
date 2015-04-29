@@ -37,21 +37,23 @@ chris tian - chris.tian(at)nyu.edu
 
 
 -----[1] number of schools offering high school level alg2 in 2014
-select count(distinct sr.numericschooldbn) as ct_alg2_hs
+select
+count(distinct sr.numericschooldbn) as ct_alg2_hs
 
-from stars_int.dbo.studentrequest as sr
+from student_request as sr
 
-inner join stars_int.dbo.masterschedulereport as msr
+inner join master_schedule_report as msr
 on msr.numericschooldbn=sr.numericschooldbn
 and msr.schoolyear=sr.schoolyear
 and msr.termid=sr.termid
 and msr.coursecode=sr.coursecode
 and msr.sectionid=sr.assignedsectionid
 
-inner join stars_int.dbo.school as s
+inner join school as s
 on s.numericschooldbn=sr.numericschooldbn
 
-where sr.schoolyear=2014
+where
+sr.schoolyear=2014
 and substring(sr.coursecode,1,2)='MR'
 and substring(sr.coursecode,4,1) not in ('J','M')
 and substring(s.schooldbn,1,2) not in ('75','79','84','88')
@@ -62,11 +64,13 @@ and substring(s.schooldbn,4,3)<>'444'
 
 
 -----[2] number of schools scheduling high school course(s) in 2014
-select count(distinct school_dbn)
+select
+count(distinct school_dbn)
 
-from atslink.ats_demo.dbo.biogdata
+from bio_data
 
-where grade_level in ('09','10','11','12')
+where
+grade_level in ('09','10','11','12')
 and status='A'
 and substring(school_dbn,1,2) not in ('75','79','84','88')
 and substring(school_dbn,4,3)<>'444'
@@ -78,22 +82,26 @@ and substring(school_dbn,4,3)<>'444'
 -----[3] active cohort r students who have taken or are taking algebra 2
 ---[3a] active cohort r students scheduled for alg2 in 2014
 if object_id('tempdb..#sa_int1') is not null drop table #sa_int1
-select distinct sr.studentid
+
+select distinct
+sr.studentid
+
 into #sa_int1
 
-from stars_int.dbo.studentrequest as sr
+from student_request as sr
 
-inner join stars_int.dbo.masterschedulereport as msr
+inner join master_schedule_report as msr
 on msr.numericschooldbn=sr.numericschooldbn
 and msr.schoolyear=sr.schoolyear
 and msr.termid=sr.termid
 and msr.coursecode=sr.coursecode
 and msr.sectionid=sr.assignedsectionid
 
-inner join atslink.ats_demo.dbo.biogdata as b
+inner join bio_data as b
 on b.student_id=sr.studentid
 
-where sr.schoolyear=2014
+where
+sr.schoolyear=2014
 and substring(sr.coursecode,1,2)='MR'
 and substring(sr.coursecode,4,1) not in ('J','M')
 and b.grd9_entry_cde='R'
@@ -103,15 +111,19 @@ and b.status='A'
 
 ---[3b] active cohort r students with algebra 2 on their transcripts
 if object_id('tempdb..#sa_int2') is not null drop table #sa_int2
-select distinct s.studentid
+
+select distinct
+s.studentid
+
 into #sa_int2
 
-from siflink.sif.dbo.hsst_tbl_studentmarks as s
+from student_marks as s
 
-inner join atslink.ats_demo.dbo.biogdata as b
+inner join bio_data as b
 on b.student_id=s.studentid
 
-where s.isexam=0
+where
+s.isexam=0
 and substring(s.coursecd,1,2)='MR'
 and substring(s.coursecd,4,1) not in ('J','M')
 and b.grd9_entry_cde='R'
@@ -122,7 +134,10 @@ and b.status='A'
 ---[3c] active cohort r students who have taken or are taking algebra 2
 --[3ci] active cohort r students who have taken or are taking algebra 2
 if object_id('tempdb..#sa_int3') is not null drop table #sa_int3
-select studentid
+
+select
+studentid
+
 into #sa_int3
 
 from #sa_int1
@@ -136,12 +151,16 @@ from #sa_int2
 
 --[3cii] active cohort r students who have taken or are taking algebra 2 excluding irrelevant populations
 if object_id('tempdb..#sa_final') is not null drop table #sa_final
-select studentid
+
+select
+studentid
+
 into #sa_final
 
 from #sa_int3
 
-where studentid not in	(
+where
+studentid not in	(
 				select distinct b.id 
 				from spr_int.prl.raw_biog_prog_union as b
 				inner join spr_int.prl.raw_graduation_stu_4yr as g
@@ -159,17 +178,21 @@ where studentid not in	(
 
 -----[4] active cohort r students
 if object_id('tempdb..#s') is not null drop table #s
-select distinct student_id
+
+select distinct
+student_id
+
 into #s
 
-from atslink.ats_demo.dbo.biogdata
+from bio_data
 
-where status='A'
+where
+status='A'
 and grd9_entry_cde='R'
 and student_id not in	(
 				select distinct b.id 
-				from spr_int.prl.raw_biog_prog_union as b
-				inner join spr_int.prl.raw_graduation_stu_4yr as g
+				from spr_bio_data as b
+				inner join spr_graduation_info as g
 				on g.id=b.id
 				where g.cohort='R'
 				and b.admission_date>=convert(datetime,'2012-09-01')
@@ -184,27 +207,28 @@ and student_id not in	(
 
 -----[5] various demographic breakdowns for active cohort r students who have taken or are taking algebra 2
 ---[5a] race breakdown for active cohort r students who have taken or are taking algebra 2 
-select 
-case when b1.ethnic_cde in ('2','C','D') then 'Asian'
-when b1.ethnic_cde in ('3','A') then 'Hispanic'
-when b1.ethnic_cde in ('4','E') then 'Black'
-when b1.ethnic_cde in ('5','F') then 'White'
+select
+case when b.ethnic_cde in ('2','C','D') then 'Asian'
+when b.ethnic_cde in ('3','A') then 'Hispanic'
+when b.ethnic_cde in ('4','E') then 'Black'
+when b.ethnic_cde in ('5','F') then 'White'
 else 'Other'
 end as ethnicity,
 count(distinct s.studentid) as ct_students
 
 from #sa_final as s
 
-inner join atslink.ats_demo.dbo.biogdata as b1
-on b1.student_id=s.studentid
+inner join bio_data as b
+on b.student_id=s.studentid
 
-where b1.status='A'
+where
+b.status='A'
 
 group by 
-case when b1.ethnic_cde in ('2','C','D') then 'Asian'
-when b1.ethnic_cde in ('3','A') then 'Hispanic'
-when b1.ethnic_cde in ('4','E') then 'Black'
-when b1.ethnic_cde in ('5','F') then 'White'
+case when b.ethnic_cde in ('2','C','D') then 'Asian'
+when b.ethnic_cde in ('3','A') then 'Hispanic'
+when b.ethnic_cde in ('4','E') then 'Black'
+when b.ethnic_cde in ('5','F') then 'White'
 else 'Other'
 end
 
@@ -212,20 +236,21 @@ end
 
 ---[5b] iep breakdown for active cohort r students who have taken or are taking algebra 2
 select
-case when b1.iep_spec_ed_flg='Y' then 'Student with Disabilities (IEP)'
+case when b.iep_spec_ed_flg='Y' then 'Student with Disabilities (IEP)'
 else NULL
 end as iep_status,
 count(distinct s.studentid) as ct_students
 
 from #sa_final as s
 
-inner join atslink.ats_demo.dbo.biogdata as b1
-on b1.student_id=s.studentid
+inner join bio_data as b
+on b.student_id=s.studentid
 
-where b1.status='A'
+where
+b.status='A'
 
 group by 
-case when b1.iep_spec_ed_flg='Y'
+case when b.iep_spec_ed_flg='Y'
 then 'Student with Disabilities (IEP)'
 else NULL
 end
@@ -234,22 +259,23 @@ end
 
 ---[5c] ell breakdown for active cohort r students who have taken or are taking algebra 2
 select
-case when b1.lep_flg='Y' then 'ELL'
-when b1.lep_flg='P' then 'Former ELL'
+case when b.lep_flg='Y' then 'ELL'
+when b.lep_flg='P' then 'Former ELL'
 else NULL
 end as ell_status,
 count(distinct s.studentid) as ct_students
 
 from #sa_final as s
 
-inner join atslink.ats_demo.dbo.biogdata as b1
-on b1.student_id=s.studentid
+inner join bio_data as b
+on b.student_id=s.studentid
 
-where b1.status='A'
+where
+b.status='A'
 
 group by
-case when b1.lep_flg='Y' then 'ELL'
-when b1.lep_flg='P' then 'Former ELL'
+case when b.lep_flg='Y' then 'ELL'
+when b.lep_flg='P' then 'Former ELL'
 else NULL
 end
 
@@ -259,27 +285,28 @@ end
 
 -----[6] various demographic breakdowns for active cohort r students						
 ---[6a] race breakdown for active cohort r students
-select 
-case when b1.ethnic_cde in ('2','C','D') then 'Asian'
-when b1.ethnic_cde in ('3','A') then 'Hispanic'
-when b1.ethnic_cde in ('4','E') then 'Black'
-when b1.ethnic_cde in ('5','F') then 'White'
+select
+case when b.ethnic_cde in ('2','C','D') then 'Asian'
+when b.ethnic_cde in ('3','A') then 'Hispanic'
+when b.ethnic_cde in ('4','E') then 'Black'
+when b.ethnic_cde in ('5','F') then 'White'
 else 'Other'
 end as ethnicity,
-count(distinct b1.student_id)
+count(distinct b.student_id)
 
-from atslink.ats_demo.dbo.biogdata as b1
+from #s as s
 
-inner join #s as s
-on s.student_id=b1.student_id
+inner join bio_data as b
+on b.student_id=s.student_id
 
-where b1.status='A'
+where
+b.status='A'
 
 group by
-case when b1.ethnic_cde in ('2','C','D') then 'Asian'
-when b1.ethnic_cde in ('3','A') then 'Hispanic'
-when b1.ethnic_cde in ('4','E') then 'Black'
-when b1.ethnic_cde in ('5','F') then 'White'
+case when b.ethnic_cde in ('2','C','D') then 'Asian'
+when b.ethnic_cde in ('3','A') then 'Hispanic'
+when b.ethnic_cde in ('4','E') then 'Black'
+when b.ethnic_cde in ('5','F') then 'White'
 else 'Other'
 end
 
@@ -287,17 +314,18 @@ end
 
 ---[6b] iep breakdown for active cohort r students
 select 
-case when b1.iep_spec_ed_flg='Y' then 'Student with Disabilities (IEP)'
+case when b.iep_spec_ed_flg='Y' then 'Student with Disabilities (IEP)'
 else NULL
 end as iep_status,
-count(distinct b1.student_id) as ct_students
+count(distinct b.student_id) as ct_students
 
-from atslink.ats_demo.dbo.biogdata as b1
+from #s as s
 
-inner join #s as s
-on s.student_id=b1.student_id
+inner join bio_data as b
+on b.student_id=s.student_id
 
-where b1.status='A'
+where
+b.status='A'
 
 group by
 case when b1.iep_spec_ed_flg='Y' then 'Student with Disabilities (IEP)'
@@ -308,21 +336,22 @@ end
 
 ---[6c] ell breakdown for active cohort r students
 select 
-case when b1.lep_flg='Y' then 'ELL'
-when b1.lep_flg='P' then 'Former ELL'
+case when b.lep_flg='Y' then 'ELL'
+when b.lep_flg='P' then 'Former ELL'
 else NULL
 end as ell_status,
-count(distinct b1.student_id) as ct_students
+count(distinct b.student_id) as ct_students
 
-from atslink.ats_demo.dbo.biogdata as b1
+from #s as s
 
-inner join #s as s
-on s.student_id=b1.student_id
+inner join bio_data as b
+on b.student_id=s.student_id
 
-where b1.status='A'
+where
+b.status='A'
 
 group by
-case when b1.lep_flg='Y' then 'ELL'
-when b1.lep_flg='P' then 'Former ELL'
+case when b.lep_flg='Y' then 'ELL'
+when b.lep_flg='P' then 'Former ELL'
 else NULL
 end
