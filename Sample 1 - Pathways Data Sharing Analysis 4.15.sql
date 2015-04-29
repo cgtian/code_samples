@@ -34,6 +34,7 @@ chris tian - chris.tian(at)nyu.edu
 
 -----[1] active cohort Q (or older) students plus their biographical information
 if object_id('tempdb..#s') is not null drop table #s
+
 select distinct
 student_id,
 first_nam,
@@ -44,9 +45,10 @@ grade_level,
 lep_flg,
 iep_spec_ed_flg,
 s504
+
 into #s
 
-from ats_demo.dbo.biogdata
+from bio_data
 
 where
 status='A'
@@ -61,6 +63,7 @@ and substring(school_dbn,4,3)<>'444'
 -----[2] best exam performances plus counts of exams above various thresholds for each student in the population
 ---[2a] exams for each student in the population
 if object_id('tempdb..#exam_list') is not null drop table #exam_list
+
 select distinct
 s.student_id,
 sm.schoolyear,
@@ -73,11 +76,12 @@ convert	(int,
 		when sm.mark in ('A','S') and substring(sm.coursecd,2,2) in ('CT','XC') then '40'
 		else sm.mark end
 	) as mark
+
 into #exam_list
 
 from #s as s
 
-inner join sif.dbo.hsst_tbl_studentmarks as sm
+inner join student_marks as sm
 on s.student_id=sm.studentid
 
 where
@@ -91,6 +95,7 @@ and sm.mark not in ('ABS','Z','INV','F','MIS')
 
 ---[2b] best exam performances for each student in the population
 if object_id('tempdb..#best_exams') is not null drop table #best_exams
+
 select distinct
 student_id,
 max(case when substring(e.coursecd,1,3) in ('EXR','EXZ','EZR') then e.mark end) as max_regents_english,
@@ -115,6 +120,7 @@ max(case when substring(e.coursecd,1,4)='RCTS' or substring(e.coursecd,1,4)='SXC
 max(case when substring(e.coursecd,1,3) in ('MXQ','MXG') then e.mark end) as max_pbat_math,
 max(case when substring(e.coursecd,1,3) in ('HXQ','HXG') then e.mark end) as max_pbat_ss,
 max(case when substring(e.coursecd,1,3) in ('SXQ','SXG') then e.mark end) as max_pbat_science
+
 into #best_exams
 
 from #exam_list
@@ -126,6 +132,7 @@ student_id
 
 ---[2c] counts of exams above various thresholds for each student in the population
 if object_id('tempdb..#exam_counts') is not null drop table #exam_counts
+
 select distinct
 student_id,
 
@@ -186,7 +193,7 @@ as ct_mixr,
 + case	when max_regents_us>=55 or max_rct_us=65 or max_pbat_ss>=65 then 1 else 0 end
 + case	when max_regents_global>=55 or max_rct_global=65 or max_pbat_ss>=65 then 1 else 0 end
 + case	when max_regents_science>=55 or max_rct_science=65 or max_pbat_science>=65 then 1 else 0 end
-as ct_mixl,
+as ct_mixl
 
 into #exam_counts
 
@@ -196,6 +203,7 @@ from #best_exams
 
 ---[2d] exams away from meeting local exam requirements via compensatory score option for each student in the population
 if object_id('tempdb..#exams_away_local_cs') is not null drop table #exams_away_local_cs
+
 select distinct
 be.student_id,
 
@@ -218,6 +226,7 @@ on ec.student_id=be.student_id
 
 ---[2e] best exam performances plus counts of exams above various thresholds for each student in the population
 if object_id('tempdb..#best_exams_plus_counts') is not null drop table #best_exams_plus_counts
+
 select distinct
 s.student_id,
 s.first_nam,
@@ -256,7 +265,8 @@ ec.ct_regents55,
 ec.ct_regents45,
 ec.ct_mixr,
 ec.ct_mixl,
-ealc.ct_exams_away_local_cs,
+ealc.ct_exams_away_local_cs
+
 into #best_exams_plus_counts
 
 from #s as s
@@ -277,8 +287,10 @@ on ealc.student_id=s.student_id
 -----[3] students who are one social studies exam away from meeting exam requirements
 ---[3a] students who are one social studies exam away from meeting exam requirements for an advanced regents diploma
 if object_id('tempdb..#one_away_advanced') is not null drop table #one_away_advanced
+
 select distinct
 student_id
+
 into #one_away_advanced
 
 from #best_exams_plus_counts
@@ -291,8 +303,10 @@ and (max_regents_us<65 or max_regents_global<65)
 
 ---[3b] students who are one social studies exam away from meeting exam requirements for a regents diploma
 if object_id('tempdb..#one_away_regents') is not null drop table #one_away_regents
+
 select distinct
 student_id
+
 into #one_away_regents
 
 from #best_exams_plus_counts
@@ -312,8 +326,10 @@ and student_id not in (select student_id from #one_away_advanced)
 ---[3c] students who are one social studies exam away from meeting exam requirements for a local diploma (assuming future exams result in scores between 55 and 64 inclusive)
 --[3ci] students who meet exam requirements for a local diploma
 if object_id('tempdb..#meets_reqs_local') is not null drop table #meets_reqs_local
+
 select distinct
 student_id
+
 into #meets_reqs_local
 
 from #best_exams_plus_counts
@@ -329,8 +345,10 @@ and	(
 
 --[3cii] students who are one social studies exam away from meeting exam requirements for a local diploma (assuming future exams result in scores between 55 and 64 inclusive)
 if object_id('tempdb..#one_away_local') is not null drop table #one_away_local
+
 select distinct
 student_id
+
 into #one_away_local
 
 from #best_exams_plus_counts
