@@ -65,7 +65,7 @@ and substring(s.schooldbn,4,3)<>'444'
 
 -----[2] number of schools scheduling high school course(s) in 2014
 select
-count(distinct school_dbn)
+count(distinct school_dbn) as ct_hs
 
 from bio_data
 
@@ -292,7 +292,7 @@ when b.ethnic_cde in ('4','E') then 'Black'
 when b.ethnic_cde in ('5','F') then 'White'
 else 'Other'
 end as ethnicity,
-count(distinct b.student_id)
+count(distinct b.student_id) as ct_students
 
 from #s as s
 
