@@ -27,9 +27,6 @@ code outline
 	[6a] race breakdown for active cohort r students
 	[6b] iep breakdown for active cohort r students
 	[6c] ell breakdown for active cohort r students
-
-contact
-chris tian - chris.tian(at)nyu.edu
 */
 
 

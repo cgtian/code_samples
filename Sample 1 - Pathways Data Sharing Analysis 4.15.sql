@@ -23,9 +23,6 @@ code outline
 		[3cii] students who are one social studies exam away from meeting exam requirements for a local diploma (assuming future exams result in scores between 55 and 64 inclusive)
 	
 [4] best exam performances for students who were one social studies exam away from meeting exam requirements pre-pathways who now meet exam requirements using the stem regents pathway
-
-contact
-chris tian - chris.tian(at)nyu.edu
 */
 
 
