@@ -8,12 +8,12 @@ this analysis measures the immediate impact of the newly legislated pathways exa
 code outline
 [1] active cohort q (or older) students plus their biographical information
 
-[2] best exam performances plus counts of exams above various thresholds for each student in the population
-	[2a] exams for each student in the population
-	[2b] best exam performances for each student in the population
-	[2c] counts of exams above various thresholds for each student in the population
-	[2d] exams away from meeting local exam requirements via compensatory score option for each student in the population
-	[2e] best exam performances plus counts of exams above various thresholds for each student in the population
+[2] best exam performances plus counts of exams above various thresholds for each student in the above population
+	[2a] exams for each student
+	[2b] best exam performances for each student
+	[2c] counts of exams above various thresholds for each student
+	[2d] exams away from meeting local exam requirements via compensatory score option for each student
+	[2e] best exam performances plus counts of exams above various thresholds for each student
 
 [3] students who are one social studies exam away from meeting exam requirements
 	[3a] students who are one social studies exam away from meeting exam requirements for an advanced regents diploma
@@ -60,8 +60,8 @@ and substring(school_dbn,4,3)<>'444'
 
 
 
------[2] best exam performances plus counts of exams above various thresholds for each student in the population
----[2a] exams for each student in the population
+-----[2] best exam performances plus counts of exams above various thresholds for each student in the above population
+---[2a] exams for each student
 if object_id('tempdb..#exam_list') is not null drop table #exam_list
 
 select distinct
@@ -93,7 +93,7 @@ and sm.mark not in ('ABS','Z','INV','F','MIS')
 
 
 
----[2b] best exam performances for each student in the population
+---[2b] best exam performances for each student
 if object_id('tempdb..#best_exams') is not null drop table #best_exams
 
 select distinct
@@ -130,7 +130,7 @@ student_id
 
 
 
----[2c] counts of exams above various thresholds for each student in the population
+---[2c] counts of exams above various thresholds for each student
 if object_id('tempdb..#exam_counts') is not null drop table #exam_counts
 
 select distinct
@@ -167,12 +167,34 @@ as ct_advanced_regents65,
 + case	when be.max_regents_science>=65 then 1 else 0 end
 as ct_regents65,
 
+  case	when be.max_regents_alg1>=65 then 1 else 0 end
++ case	when be.max_regents_geometry>=65 then 1 else 0 end
++ case	when be.max_regents_alg2>=65 then 1 else 0 end
+as ct_regents_math65,
+
+  case	when be.max_regents_living>=65 then 1 else 0 end
++ case	when be.max_regents_earth>=65 then 1 else 0 end
++ case	when be.max_regents_chemistry>=65 then 1 else 0 end
++ case	when be.max_regents_physics>=65 then 1 else 0 end
+as ct_regents_science65,
+
   case	when be.max_regents_english>=55 then 1 else 0 end
 + case	when be.max_regents_math>=55 then 1 else 0 end
 + case	when be.max_regents_us>=55 then 1 else 0 end
 + case	when be.max_regents_global>=55 then 1 else 0 end
 + case	when be.max_regents_science>=55 then 1 else 0 end
 as ct_regents55,
+
+  case	when be.max_regents_alg1>=55 then 1 else 0 end
++ case	when be.max_regents_geometry>=55 then 1 else 0 end
++ case	when be.max_regents_alg2>=55 then 1 else 0 end
+as ct_regents_math55,
+
+  case	when be.max_regents_living>=55 then 1 else 0 end
++ case	when be.max_regents_earth>=55 then 1 else 0 end
++ case	when be.max_regents_chemistry>=55 then 1 else 0 end
++ case	when be.max_regents_physics>=55 then 1 else 0 end
+as ct_regents_science55,
 
   case	when be.max_regents_english>=45 then 1 else 0 end
 + case	when be.max_regents_math>=45 then 1 else 0 end
@@ -209,18 +231,26 @@ on be.student_id=s.student_id
 
 
 
----[2d] exams away from meeting local exam requirements via compensatory score option for each student in the population
+---[2d] exams away from meeting local exam requirements via compensatory score option for each student
 if object_id('tempdb..#exams_away_local_cs') is not null drop table #exams_away_local_cs
 
 select distinct
 be.student_id,
 
   case	when be.max_regents_english<55 or be.max_regents_english is null then 1 else 0 end
-+ case	when be.max_regents_math<55 or be.max_regents_english is null then 1 else 0 end
++ case	when be.max_regents_math<55 or be.max_regents_math is null then 1 else 0 end
 + case	when be.max_regents_science<45 or be.max_regents_science is null then 1 else 0 end
 + case	when be.max_regents_us<45 or be.max_regents_us is null then 1 else 0 end
 + case	when be.max_regents_global<45 or be.max_regents_global is null then 1 else 0 end
-+ case	when ec.ct_regents65-(ec.ct_regents45-ec.ct_regents55)>=0 then 0 else ec.ct_regents65-(ec.ct_regents45-ec.ct_regents55) end
++ case	when (ec.ct_regents45-ec.ct_regents55)-ec.ct_regents65
+	     -(case when max_regents_english>=45 and max_regents_english<55 then 1 else 0 end)
+	     -(case when max_regents_math>=45 and max_regents_math<55 then 1 else 0 end)
+	     >=0
+	then (ec.ct_regents45-ec.ct_regents55)-ec.ct_regents65
+	     -(case when max_regents_english>=45 and max_regents_english<55 then 1 else 0 end)
+	     -(case when max_regents_math>=45 and max_regents_math<55 then 1 else 0 end)
+	else 0 
+	end
 as ct_exams_away_local_cs
 
 into #exams_away_local_cs
@@ -238,7 +268,7 @@ s.iep_spec_ed_flg='Y'
 
 
 
----[2e] best exam performances plus counts of exams above various thresholds for each student in the population
+---[2e] best exam performances plus counts of exams above various thresholds for each student
 if object_id('tempdb..#best_exams_plus_counts') is not null drop table #best_exams_plus_counts
 
 select distinct
@@ -275,7 +305,11 @@ be.max_pbat_ss,
 be.max_pbat_science,
 ec.ct_advanced_regents65,
 ec.ct_regents65,
+ec.ct_regents_math65,
+ec.ct_regents_science65,
 ec.ct_regents55,
+ec.ct_regents_math55,
+ec.ct_regents_science55,
 ec.ct_regents45,
 ec.ct_mixr,
 ec.ct_mixl,
@@ -400,11 +434,7 @@ from #best_exams_plus_counts
 
 where
 student_id in (select student_id from #one_away_advanced)
-and	(
-		(max_regents_living>=65 and max_regents_earth>=65 and max_regents_chemistry>=65)
-		or (max_regents_living>=65 and max_regents_earth>=65 and max_regents_physics>=65)
-		or (max_regents_earth>=65 and max_regents_chemistry>=65 and max_regents_physics>=65)
-	)
+and ct_regents_science65>=3
 
 union
 
@@ -417,17 +447,7 @@ from #best_exams_plus_counts
 
 where
 student_id in (select student_id from #one_away_regents)
-and	(
-		(max_regents_alg1>=65 and max_regents_geometry>=65)
-		or (max_regents_alg1>=65 and max_regents_alg2>=65)
-		or (max_regents_geometry>=65 and max_regents_alg2>=65)
-		or (max_regents_living>=65 and max_regents_earth>=65)
-		or (max_regents_living>=65 and max_regents_chemistry>=65)
-		or (max_regents_living>=65 and max_regents_physics>=65)
-		or (max_regents_earth>=65 and max_regents_chemistry>=65)
-		or (max_regents_earth>=65 and max_regents_physics>=65)
-		or (max_regents_chemistry>=65 and max_regents_physics>=65)
-	)
+and (ct_regents_math65>=2 or ct_regents_science65>=2)
 
 union
 
@@ -440,17 +460,7 @@ from #best_exams_plus_counts
 
 where
 student_id in (select student_id from #one_away_local)
-and	(
-		(max_regents_alg1>=55 and max_regents_geometry>=55)
-		or (max_regents_alg1>=55 and max_regents_alg2>=55)
-		or (max_regents_geometry>=55 and max_regents_alg2>=55)
-		or (max_regents_living>=55 and max_regents_earth>=55)
-		or (max_regents_living>=55 and max_regents_chemistry>=55)
-		or (max_regents_living>=55 and max_regents_physics>=55)
-		or (max_regents_earth>=55 and max_regents_chemistry>=55)
-		or (max_regents_earth>=55 and max_regents_physics>=55)
-		or (max_regents_chemistry>=55 and max_regents_physics>=55)
-	)
+and (ct_regents_math55>=2 or ct_regents_science55>=2)
 
 order by
 dummy_advanced_requirements,
