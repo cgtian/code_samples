@@ -6,14 +6,17 @@ this analysis measures the immediate impact of the newly legislated pathways exa
 (i.e. how many hs seniors who previously did not meet exam requirements to graduate now meet the new pathways exam requirements?)
 
 code outline
-[1] active cohort q (or older) students plus their biographical information
+[1] active 12th graders plus their biographical information
 
-[2] best exam performances plus counts of exams above various thresholds for each student in the above population
+[2] best exam performances plus counts of exams above various thresholds for each student in the above population (who have any)
 	[2a] exams for each student
-	[2b] best exam performances for each student
-	[2c] counts of exams above various thresholds for each student
-	[2d] exams away from meeting local exam requirements via compensatory score option for each student
-	[2e] best exam performances plus counts of exams above various thresholds for each student
+	[2b] best stem exam performance in a subject_detail besides the two associated with the student's highest math and science exams
+		[2bi] indexes by studentid_subject and studentid_subject_detail for stem exams
+		[2bii] best stem exam performance in a subject_detail besides the two associated with the student's highest math and science exams
+	[2c] best exam performances for each student
+	[2d] counts of exams above various thresholds for each student
+	[2e] exams away from meeting local exam requirements via compensatory score option for each student
+	[2f] best exam performances plus counts of exams above various thresholds for each student
 
 [3] students who are one social studies exam away from meeting exam requirements
 	[3a] students who are one social studies exam away from meeting exam requirements for an advanced regents diploma
@@ -23,13 +26,17 @@ code outline
 		[3cii] students who are one social studies exam away from meeting exam requirements for a local diploma (assuming future exams result in scores between 55 and 64 inclusive)
 	
 [4] best exam performances for students who were one social studies exam away from meeting exam requirements pre-pathways who now meet exam requirements using the stem regents pathway
+
+deliverable
+list of hs seniors who previously did not meet exam requirements to graduate who now meet the new pathways exam requirements
+(along with their biographical information and best exam performances) as produced in [4]
 */
 
 
 
 
 
------[1] active cohort Q (or older) students plus their biographical information
+-----[1] active 12th graders plus their biographical information
 if object_id('tempdb..#s') is not null drop table #s
 
 select distinct
@@ -49,15 +56,15 @@ from bio_data
 
 where
 status='A'
-and grd9_entry_cde<='Q'
+and grade_level='12'
 and substring(school_dbn,1,2) not in ('84','88')
-and substring(school_dbn,4,3)<>'444'
+and substring(school_dbn,4,3)!='444'
 
 
 
 
 
------[2] best exam performances plus counts of exams above various thresholds for each student in the above population
+-----[2] best exam performances plus counts of exams above various thresholds for each student in the above population (who have any)
 ---[2a] exams for each student
 if object_id('tempdb..#exam_list') is not null drop table #exam_list
 
@@ -66,13 +73,31 @@ s.student_id,
 sm.schoolyear,
 sm.termcd,
 sm.coursecd,
+substring(sm.coursecd,1,1) as subject,
+
+case 	when substring(sm.coursecd,2,2) in ('XR','XZ','ZR') and substring(sm.coursecd,1,1)+substring(sm.coursecd,4,1) in ('ME','MC','MA') then 'algebra1'
+	when substring(sm.coursecd,2,2) in ('XR','XZ','ZR') and substring(sm.coursecd,1,1)+substring(sm.coursecd,4,1) in ('MG','MB') then 'geometry'
+	when substring(sm.coursecd,2,2) in ('XR','XZ','ZR') and substring(sm.coursecd,1,1)+substring(sm.coursecd,4,1)='MT' then 'algebra2'
+	when substring(sm.coursecd,2,2) in ('XR','XZ','ZR') and substring(sm.coursecd,1,1)+substring(sm.coursecd,4,1) in ('S1','SK','SL') then 'living_environment'
+	when substring(sm.coursecd,2,2) in ('XR','XZ','ZR') and substring(sm.coursecd,1,1)+substring(sm.coursecd,4,1) in ('SA','SE','SU') then 'earth_science'
+	when substring(sm.coursecd,2,2) in ('XR','XZ','ZR') and substring(sm.coursecd,1,1)+substring(sm.coursecd,4,1) in ('SC','SX') then 'chemistry'
+	when substring(sm.coursecd,2,2) in ('XR','XZ','ZR') and substring(sm.coursecd,1,1)+substring(sm.coursecd,4,1) in ('SP','S$') then 'physics'
+	end
+as subject_detail,
+
 convert	(int,
-		case
-		when sm.mark in ('A','CR','P','PL','PR','WA','WG','WX') and substring(sm.coursecd,2,2) in ('XR','XZ','ZR','XQ','XG','XT','X3') then '65'
-		when sm.mark in ('P') and substring(sm.coursecd,2,2) in ('CT','XC') then '65'
-		when sm.mark in ('A','S') and substring(sm.coursecd,2,2) in ('CT','XC') then '40'
-		else sm.mark end
-	) as mark
+		case	when sm.mark in ('A','CR','P','PL','PR','WA','WG','WX') and substring(sm.coursecd,2,2) in ('XR','XZ','ZR','XQ','XG','XT','X3') then '65'
+			when sm.mark in ('P') and substring(sm.coursecd,2,2) in ('CT','XC') then '65'
+			when sm.mark in ('A','S') and substring(sm.coursecd,2,2) in ('CT','XC') then '40'
+			else sm.mark end
+	)
+as mark,
+
+row_number() over	(	
+				partition by student_id
+				order by student_id asc
+			)
+as index_all
 
 into #exam_list
 
@@ -83,51 +108,110 @@ on s.student_id=sm.studentid
 
 where
 sm.isexam=1
-and 	(
+and	(
 		substring(sm.coursecd,2,2) in ('XR','XZ','ZR','XC','XQ','XG','XT','X3') or substring(sm.coursecd,1,3)='RCT'
 	)
 and sm.mark not in ('ABS','Z','INV','F','MIS')
 
 
 
----[2b] best exam performances for each student
-if object_id('tempdb..#best_exams') is not null drop table #best_exams
+---[2b] best stem exam performance in a subject_detail besides the two associated with the student's highest math and science exams
+--[2bi] indexes by studentid_subject and studentid_subject_detail for stem exams
+if object_id('tempdb..#second_stem_setup') is not null drop table #second_stem_setup
 
 select distinct
 student_id,
-max(case when substring(e.coursecd,1,3) in ('EXR','EXZ','EZR') then e.mark end) as max_regents_english,
-max(case when substring(e.coursecd,1,3) in ('MXR','MXZ','MZR') then e.mark end) as max_regents_math,
-max(case when substring(e.coursecd,1,4) in ('MXRE','MXRC','MXZE','MXZC','MZRE','MXRA') then e.mark end) as max_regents_alg1,
-max(case when substring(e.coursecd,1,4) in ('MXRG','MXZG','MZRG','MXRB') then e.mark end) as max_regents_geometry,
-max(case when substring(e.coursecd,1,4) in ('MXRT','MXZT') then e.mark end) as max_regents_alg2,
-max(case when substring(e.coursecd,1,4) in ('HXRA','HXRU','HXZU','HZRA') then e.mark end) as max_regents_us,
-max(case when substring(e.coursecd,1,4) in ('HXR$','HXRG','HXZG','HZR$','HZRE') then e.mark end) as max_regents_global,
-max(case when substring(e.coursecd,1,3) in ('SXR','SXZ','SZR') then e.mark end) as max_regents_science,
-max(case when substring(e.coursecd,1,4) in ('SXR1','SXRK','SXZK','SZRK','SXRL') then e.mark end) as max_regents_living,
-max(case when substring(e.coursecd,1,4) in ('SXRA','SXRE','SXRU','SXZU','SZRE','SZRU') then e.mark end) as max_regents_earth,
-max(case when substring(e.coursecd,1,4) in ('SXRC','SXRX','SZRC') then e.mark end) as max_regents_chemistry,
-max(case when substring(e.coursecd,1,4) in ('SXR$','SXRP') then e.mark end) as max_regents_physics,
-max(case when substring(e.coursecd,2,2) in ('XT','X3') then e.mark end) as max_lote,
-max(case when substring(e.coursecd,1,4)='RCTR' or substring(e.coursecd,1,4)='EXCR' then e.mark end) as max_rct_reading,
-max(case when substring(e.coursecd,1,4)='RCTW' or substring(e.coursecd,1,4)='EXCW' then e.mark end) as max_rct_writing,
-max(case when substring(e.coursecd,1,4)='RCTM' or substring(e.coursecd,1,4)='MXCM' then e.mark end) as max_rct_math,
-max(case when substring(e.coursecd,1,4)='RCTH' or substring(e.coursecd,1,4)='HXCU' then e.mark end) as max_rct_us,
-max(case when substring(e.coursecd,1,4)='RCTG' or substring(e.coursecd,1,4)='HXCG' then e.mark end) as max_rct_global,
-max(case when substring(e.coursecd,1,4)='RCTS' or substring(e.coursecd,1,4)='SXCS' then e.mark end) as max_rct_science,
-max(case when substring(e.coursecd,1,3) in ('MXQ','MXG') then e.mark end) as max_pbat_math,
-max(case when substring(e.coursecd,1,3) in ('HXQ','HXG') then e.mark end) as max_pbat_ss,
-max(case when substring(e.coursecd,1,3) in ('SXQ','SXG') then e.mark end) as max_pbat_science
+schoolyear,
+termcd,
+coursecd,
+subject,
+subject_detail,
+mark,
 
-into #best_exams
+row_number() over	(	
+				partition by student_id, subject
+				order by student_id, subject, mark desc, index_all
+			)
+as index_studentid_subject,
+
+row_number() over	(
+				partition by student_id, subject_detail
+				order by student_id, subject_detail, mark desc, index_all
+			)
+as index_studentid_subject_detail
+
+into #second_stem_int
 
 from #exam_list
+
+where
+subject_detail is not null
+
+
+--[2bii] best stem exam performance in a subject_detail besides the two associated with the student's highest math and science exams
+if object_id('tempdb..#max_regents_second_stem') is not null drop table #max_regents_second_stem
+
+select
+student_id,
+max(mark) as max_regents_second_stem
+
+into #max_regents_second_stem
+
+from #second_stem_int
+
+where
+index_studentid_subject!=1
+and index_studentid_subject_detail=1
 
 group by
 student_id
 
 
 
----[2c] counts of exams above various thresholds for each student
+---[2c] best exam performances
+if object_id('tempdb..#best_exams') is not null drop table #best_exams
+
+select distinct
+e.student_id,
+max(case when substring(e.coursecd,1,3) in ('EXR','EXZ','EZR') then mark end) as max_regents_english,
+max(case when substring(e.coursecd,1,3) in ('MXR','MXZ','MZR') then mark end) as max_regents_math,
+max(case when substring(e.coursecd,1,4) in ('MXRE','MXRC','MXZE','MXZC','MZRE','MXRA') then mark end) as max_regents_alg1,
+max(case when substring(e.coursecd,1,4) in ('MXRG','MXZG','MZRG','MXRB') then mark end) as max_regents_geometry,
+max(case when substring(e.coursecd,1,4) in ('MXRT','MXZT') then mark end) as max_regents_alg2,
+max(case when substring(e.coursecd,1,3) in ('HXR','HXZ','HZR') then mark end) as max_regents_ss,
+max(case when substring(e.coursecd,1,4) in ('HXRA','HXRU','HXZU','HZRA') then mark end) as max_regents_us,
+max(case when substring(e.coursecd,1,4) in ('HXR$','HXRG','HXZG','HZR$','HZRE') then mark end) as max_regents_global,
+max(case when substring(e.coursecd,1,3) in ('SXR','SXZ','SZR') then mark end) as max_regents_science,
+max(case when substring(e.coursecd,1,4) in ('SXR1','SXRK','SXZK','SZRK','SXRL') then mark end) as max_regents_living,
+max(case when substring(e.coursecd,1,4) in ('SXRA','SXRE','SXRU','SXZU','SZRE','SZRU') then mark end) as max_regents_earth,
+max(case when substring(e.coursecd,1,4) in ('SXRC','SXRX','SZRC') then mark end) as max_regents_chemistry,
+max(case when substring(e.coursecd,1,4) in ('SXR$','SXRP') then mark end) as max_regents_physics,
+ss.max_regents_second_stem,
+max(case when substring(e.coursecd,1,3) in ('FXT','FX3') then mark end) as max_lote,
+max(case when (substring(e.coursecd,1,4)='RCTR' or substring(coursecd,1,4)='EXCR') then mark end) as max_rct_reading,
+max(case when (substring(e.coursecd,1,4)='RCTW' or substring(coursecd,1,4)='EXCW') then mark end) as max_rct_writing,
+max(case when (substring(e.coursecd,1,4)='RCTM' or substring(coursecd,1,4)='MXCM') then mark end) as max_rct_math,
+max(case when (substring(e.coursecd,1,4)='RCTH' or substring(coursecd,1,4)='HXCU') then mark end) as max_rct_us,
+max(case when (substring(e.coursecd,1,4)='RCTG' or substring(coursecd,1,4)='HXCG') then mark end) as max_rct_global,
+max(case when (substring(e.coursecd,1,4)='RCTS' or substring(coursecd,1,4)='SXCS') then mark end) as max_rct_science,
+max(case when substring(e.coursecd,1,3) in ('MXQ','MXG') then mark end) as max_pbat_math,
+max(case when substring(e.coursecd,1,3) in ('HXQ','HXG') then mark end) as max_pbat_ss,
+max(case when substring(e.coursecd,1,3) in ('SXQ','SXG') then mark end) as max_pbat_science
+
+into #best_exams
+
+from #exam_list as e
+
+left join #max_regents_second_stem as ss
+on ss.student_id=e.student_id
+
+group by
+e.student_id,
+ss.max_regents_second_stem
+
+
+
+---[2d] counts of exams above various thresholds
 if object_id('tempdb..#exam_counts') is not null drop table #exam_counts
 
 select distinct
@@ -146,7 +230,7 @@ s.student_id,
 			+ case	when be.max_regents_physics>=65 then 1 else 0 end
 		)
 		>2
-	then 	2
+	then	2
 	else	(
 			  case	when be.max_regents_living>=65 then 1 else 0 end
 			+ case	when be.max_regents_earth>=65 then 1 else 0 end
@@ -164,10 +248,12 @@ as ct_advanced_regents65,
 + case	when be.max_regents_science>=65 then 1 else 0 end
 as ct_regents65,
 
-  case	when be.max_regents_alg1>=65 then 1 else 0 end
-+ case	when be.max_regents_geometry>=65 then 1 else 0 end
-+ case	when be.max_regents_alg2>=65 then 1 else 0 end
-as ct_regents_math65,
+  case	when be.max_regents_english>=65 then 1 else 0 end
++ case	when be.max_regents_math>=65 then 1 else 0 end
++ case	when be.max_regents_ss>=65 then 1 else 0 end
++ case	when be.max_regents_science>=65 then 1 else 0 end
++ case	when be.max_regents_second_stem>=65 then 1 else 0 end
+as ct_regents65_star,
 
   case	when be.max_regents_living>=65 then 1 else 0 end
 + case	when be.max_regents_earth>=65 then 1 else 0 end
@@ -175,36 +261,25 @@ as ct_regents_math65,
 + case	when be.max_regents_physics>=65 then 1 else 0 end
 as ct_regents_science65,
 
-  case	when be.max_regents_english>=55 then 1 else 0 end
-+ case	when be.max_regents_math>=55 then 1 else 0 end
-+ case	when be.max_regents_us>=55 then 1 else 0 end
-+ case	when be.max_regents_global>=55 then 1 else 0 end
-+ case	when be.max_regents_science>=55 then 1 else 0 end
-as ct_regents55,
+  case	when be.max_regents_english>=45 and be.max_regents_english<55 then 1 else 0 end
++ case	when be.max_regents_math>=45 and be.max_regents_math<55 then 1 else 0 end
++ case	when be.max_regents_us>=45 and be.max_regents_us<55 then 1 else 0 end
++ case	when be.max_regents_global>=45 and be.max_regents_global<55 then 1 else 0 end
++ case  when be.max_regents_science>=45 and be.max_regents_science<55 then 1 else 0 end
+as ct_regents45to55,
 
-  case	when be.max_regents_alg1>=55 then 1 else 0 end
-+ case	when be.max_regents_geometry>=55 then 1 else 0 end
-+ case	when be.max_regents_alg2>=55 then 1 else 0 end
-as ct_regents_math55,
-
-  case	when be.max_regents_living>=55 then 1 else 0 end
-+ case	when be.max_regents_earth>=55 then 1 else 0 end
-+ case	when be.max_regents_chemistry>=55 then 1 else 0 end
-+ case	when be.max_regents_physics>=55 then 1 else 0 end
-as ct_regents_science55,
-
-  case	when be.max_regents_english>=45 then 1 else 0 end
-+ case	when be.max_regents_math>=45 then 1 else 0 end
-+ case	when be.max_regents_us>=45 then 1 else 0 end
-+ case	when be.max_regents_global>=45 then 1 else 0 end
-+ case	when be.max_regents_science>=45 then 1 else 0 end
-as ct_regents45,
+  case	when be.max_regents_english>=45 and be.max_regents_english<55 then 1 else 0 end
++ case	when be.max_regents_math>=45 and be.max_regents_math<55 then 1 else 0 end
++ case	when be.max_regents_ss>=45 and be.max_regents_ss<55 then 1 else 0 end
++ case  when be.max_regents_science>=45 and be.max_regents_science<55 then 1 else 0 end
++ case	when be.max_regents_second_stem>=45 and be.max_regents_second_stem<55 then 1 else 0 end
+as ct_regents45to55_star,
 
   case	when be.max_regents_english>=65 then 1 else 0 end
-+ case	when be.max_regents_math>=65 or be.max_pbat_math>=65 then 1 else 0 end
-+ case	when be.max_regents_us>=65 or be.max_pbat_ss>=65 then 1 else 0 end
-+ case	when be.max_regents_global>=65 or be.max_pbat_ss>=65 then 1 else 0 end
-+ case	when be.max_regents_science>=65 or be.max_pbat_science>=65 then 1 else 0 end
++ case	when be.max_regents_math>=65 or max_pbat_math>=65 then 1 else 0 end
++ case	when be.max_regents_us>=65 or max_pbat_ss>=65 then 1 else 0 end
++ case	when be.max_regents_global>=65 or max_pbat_ss>=65 then 1 else 0 end
++ case	when be.max_regents_science>=65 or max_pbat_science>=65 then 1 else 0 end
 as ct_mixr,
 
   case	when s.iep_spec_ed_flg='Y'
@@ -228,7 +303,7 @@ on be.student_id=s.student_id
 
 
 
----[2d] exams away from meeting local exam requirements via compensatory score option for each student
+---[2e] exams away from meeting local exam requirements via compensatory score option (SWDs only)
 if object_id('tempdb..#exams_away_local_cs') is not null drop table #exams_away_local_cs
 
 select distinct
@@ -239,11 +314,11 @@ be.student_id,
 + case	when be.max_regents_science<45 or be.max_regents_science is null then 1 else 0 end
 + case	when be.max_regents_us<45 or be.max_regents_us is null then 1 else 0 end
 + case	when be.max_regents_global<45 or be.max_regents_global is null then 1 else 0 end
-+ case	when (ec.ct_regents45-ec.ct_regents55)-ec.ct_regents65
++ case	when ec.ct_regents45to55-ec.ct_regents65
 	     -(case when max_regents_english>=45 and max_regents_english<55 then 1 else 0 end)
 	     -(case when max_regents_math>=45 and max_regents_math<55 then 1 else 0 end)
 	     >=0
-	then (ec.ct_regents45-ec.ct_regents55)-ec.ct_regents65
+	then ec.ct_regents45to55-ec.ct_regents65
 	     -(case when max_regents_english>=45 and max_regents_english<55 then 1 else 0 end)
 	     -(case when max_regents_math>=45 and max_regents_math<55 then 1 else 0 end)
 	else 0 
@@ -265,7 +340,7 @@ s.iep_spec_ed_flg='Y'
 
 
 
----[2e] best exam performances plus counts of exams above various thresholds for each student
+---[2f] best exam performances plus counts of exams above various thresholds
 if object_id('tempdb..#best_exams_plus_counts') is not null drop table #best_exams_plus_counts
 
 select distinct
@@ -283,6 +358,7 @@ be.max_regents_math,
 be.max_regents_alg1,
 be.max_regents_geometry,
 be.max_regents_alg2,
+be.max_regents_ss,
 be.max_regents_us,
 be.max_regents_global,
 be.max_regents_science,
@@ -290,6 +366,7 @@ be.max_regents_living,
 be.max_regents_earth,
 be.max_regents_chemistry,
 be.max_regents_physics,
+be.max_regents_second_stem,
 be.max_lote,
 be.max_rct_reading,
 be.max_rct_writing,
@@ -302,12 +379,10 @@ be.max_pbat_ss,
 be.max_pbat_science,
 ec.ct_advanced_regents65,
 ec.ct_regents65,
-ec.ct_regents_math65,
+ec.ct_regents65_star,
 ec.ct_regents_science65,
-ec.ct_regents55,
-ec.ct_regents_math55,
-ec.ct_regents_science55,
-ec.ct_regents45,
+ec.ct_regents45to55,
+ec.ct_regents45to55_star,
 ec.ct_mixr,
 ec.ct_mixl,
 ealc.ct_exams_away_local_cs
@@ -368,7 +443,7 @@ and student_id not in (select student_id from #one_away_advanced)
 
 
 
----[3c] students who are one social studies exam away from meeting exam requirements for a local diploma (assuming future exams result in scores between 55 and 64 inclusive)
+---[3c] students who are one social studies exam away from meeting exam requirements for a local diploma
 --[3ci] students who meet exam requirements for a local diploma
 if object_id('tempdb..#meets_reqs_local') is not null drop table #meets_reqs_local
 
@@ -382,13 +457,20 @@ from #best_exams_plus_counts
 where
 iep_spec_ed_flg='Y'
 and	(
-		ct_mixl=5				---this condition is not necessary for the purposes of our analysis but is included to be consistent with other analyses in april 2015's data sharing series
+		ct_mixl=5
 		or
-		(ct_regents45=5 and max_regents_english>=55 and max_regents_math>=55 and ct_regents45-ct_regents55<=ct_regents65)
+		(
+			max_regents_english>=55
+			and max_regents_math>=55
+			and max_regents_us>=45
+			and max_regents_global>=45
+			and max_regents_science>=45
+			and ct_regents45to55<=ct_regents65
+		)
 	)
 
 
---[3cii] students who are one social studies exam away from meeting exam requirements for a local diploma (assuming future exams result in scores between 55 and 64 inclusive)
+--[3cii] students who are one social studies exam away from meeting exam requirements for a local diploma
 if object_id('tempdb..#one_away_local') is not null drop table #one_away_local
 
 select distinct
@@ -400,17 +482,42 @@ from #best_exams_plus_counts
 
 where
 iep_spec_ed_flg='Y'
-and (ct_mixl=4 or ct_exams_away_local_cs=1)
-and (max_pbat_ss<65 or max_pbat_ss is null)
 and	(
 		(
-			(max_regents_us<55 or max_regents_us is null)
-			and (max_rct_us<65 or max_rct_us is null)
+			ct_mixl=4
+			and (max_pbat_ss<65 or max_pbat_ss is null)
+			and	(
+					(	
+						(max_regents_us<55 or max_regents_us is null)
+						and (max_rct_us<65 or max_rct_us is null)
+					)
+					or
+					(
+						(max_regents_global<55 or max_regents_global is null)
+						and (max_rct_global<65 or max_rct_global is null)
+					)
+				)
 		)
-		or	
-		(	
-			(max_regents_global<55 or max_regents_global is null)
-			and (max_rct_global<65 or max_rct_global is null)
+		or
+		(
+			ct_exams_away_local_cs=1
+			and	(
+					(
+						(max_regents_us<55 or max_regents_us is null)
+						and max_regents_english>=55
+						and max_regents_math>=55
+						and max_regents_global>=45
+						and max_regents_science>=45
+					)
+					or
+					(
+						(max_regents_global<55 or max_regents_global is null)
+						and max_regents_english>=55
+						and max_regents_math>=55
+						and max_regents_us>=45
+						and max_regents_science>=45
+					)
+				)
 		)
 	)
 and student_id not in (select student_id from #meets_reqs_local)
@@ -444,7 +551,7 @@ from #best_exams_plus_counts
 
 where
 student_id in (select student_id from #one_away_regents)
-and (ct_regents_math65>=2 or ct_regents_science65>=2)
+and max_regents_second_stem>=65
 
 union
 
@@ -457,10 +564,25 @@ from #best_exams_plus_counts
 
 where
 student_id in (select student_id from #one_away_local)
-and (ct_regents_math55>=2 or ct_regents_science55>=2)
+and	(
+		(
+			ct_mixl=4
+			and max_regents_second_stem>=55
+		)
+		or
+		(
+			ct_exams_away_local_cs=1
+			and max_regents_english>=55
+			and max_regents_math>=55
+			and max_regents_ss>=45
+			and max_regents_science>=45
+			and max_regents_second_stem>=45
+			and ct_regents45to55_star<=ct_regents65_star
+		)
+	)
 
 order by
 dummy_advanced_requirements,
 dummy_regents_requirements,
 dummy_local_requirements,
-student_id asc
+student_id
