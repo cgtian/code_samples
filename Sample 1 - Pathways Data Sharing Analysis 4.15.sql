@@ -140,7 +140,7 @@ row_number() over	(
 			)
 as index_studentid_subject_detail
 
-into #second_stem_int
+into #second_stem_setup
 
 from #exam_list
 
@@ -157,7 +157,7 @@ max(mark) as max_regents_second_stem
 
 into #max_regents_second_stem
 
-from #second_stem_int
+from #second_stem_setup
 
 where
 index_studentid_subject!=1
