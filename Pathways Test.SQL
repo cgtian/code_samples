@@ -11,7 +11,7 @@ code outline
 [2] best exam performances plus counts of exams above various thresholds for each student in the above population (who have any)
 	[2a] exams for each student
 	[2b] best stem exam performance in a subject_detail besides the two associated with the student's highest math and science exams
-		[2bi] indexes by studentid_subject and studentid_subject_detail
+		[2bi] indexes by studentid_subject and studentid_subject_detail for stem exams
 		[2bii] best stem exam performance in a subject_detail besides the two associated with the student's highest math and science exams
 	[2c] best exam performances for each student
 	[2d] counts of exams above various thresholds for each student
@@ -54,8 +54,7 @@ where
 status='A'
 and grd9_entry_cde<='Q'
 and substring(school_dbn,1,2) not in ('84','88')
-and substring(school_dbn,4,3)<>'444'
----note: need to exclude d79 students who graduated or received an exiting credential at some point
+and substring(school_dbn,4,3)!='444'
 
 
 
@@ -114,7 +113,7 @@ and sm.mark not in ('ABS','Z','INV','F','MIS')
 
 
 ---[2b] best stem exam performance in a subject_detail besides the two associated with the student's highest math and science exams
---[2bi] indexes by studentid_subject and studentid_subject_detail
+--[2bi] indexes by studentid_subject and studentid_subject_detail for stem exams
 if object_id('tempdb..#second_stem_setup') is not null drop table #second_stem_setup
 
 select distinct
@@ -158,7 +157,7 @@ into #max_regents_second_stem
 from #second_stem_int
 
 where
-index_studentid_subject<>1
+index_studentid_subject!=1
 and index_studentid_subject_detail=1
 
 group by
@@ -185,7 +184,7 @@ max(case when substring(e.coursecd,1,4) in ('SXRA','SXRE','SXRU','SXZU','SZRE','
 max(case when substring(e.coursecd,1,4) in ('SXRC','SXRX','SZRC') then mark end) as max_regents_chemistry,
 max(case when substring(e.coursecd,1,4) in ('SXR$','SXRP') then mark end) as max_regents_physics,
 ss.max_regents_second_stem,
-max(case when substring(e.coursecd,2,2) in ('XT','X3') then mark end) as max_lote,
+max(case when substring(e.coursecd,1,3) in ('FXT','FX3') then mark end) as max_lote,
 max(case when (substring(e.coursecd,1,4)='RCTR' or substring(coursecd,1,4)='EXCR') then mark end) as max_rct_reading,
 max(case when (substring(e.coursecd,1,4)='RCTW' or substring(coursecd,1,4)='EXCW') then mark end) as max_rct_writing,
 max(case when (substring(e.coursecd,1,4)='RCTM' or substring(coursecd,1,4)='MXCM') then mark end) as max_rct_math,
