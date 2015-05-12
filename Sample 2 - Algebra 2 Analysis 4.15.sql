@@ -61,7 +61,7 @@ sr.schoolyear=2014
 and substring(sr.coursecode,1,2)='MR'
 and substring(sr.coursecode,4,1) not in ('J','M')
 and substring(s.schooldbn,1,2) not in ('75','79','84','88')
-and substring(s.schooldbn,4,3)<>'444'
+and substring(s.schooldbn,4,3)!='444'
 
 
 
@@ -77,7 +77,7 @@ where
 grade_level in ('09','10','11','12')
 and status='A'
 and substring(school_dbn,1,2) not in ('75','79','84','88')
-and substring(school_dbn,4,3)<>'444'
+and substring(school_dbn,4,3)!='444'
 
 
 
