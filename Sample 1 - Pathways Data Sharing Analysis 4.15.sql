@@ -27,9 +27,11 @@ code outline
 	
 [4] best exam performances for students who were one social studies exam away from meeting exam requirements pre-pathways who now meet exam requirements using the stem regents pathway
 
-deliverable
-list of hs seniors who previously did not meet exam requirements to graduate who now meet the new pathways exam requirements
-(along with their biographical information and best exam performances) as produced in [4]
+deliverables
++ list of hs seniors who previously did not meet exam requirements to graduate who now meet the new pathways exam requirements
+(along with their biographical information and best exam performances)
+	+ produced by [4]
+
 */
 
 
@@ -456,18 +458,7 @@ from #best_exams_plus_counts
 
 where
 iep_spec_ed_flg='Y'
-and	(
-		ct_mixl=5
-		or
-		(
-			max_regents_english>=55
-			and max_regents_math>=55
-			and max_regents_us>=45
-			and max_regents_global>=45
-			and max_regents_science>=45
-			and ct_regents45to55<=ct_regents65
-		)
-	)
+and (ct_mixl=5 or ct_exams_away_local_cs=0)
 
 
 --[3cii] students who are one social studies exam away from meeting exam requirements for a local diploma
