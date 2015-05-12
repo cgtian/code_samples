@@ -27,14 +27,9 @@ code outline
 	
 [4] best exam performances for students who were one social studies exam away from meeting exam requirements pre-pathways who now meet exam requirements using the stem regents pathway
 
-deliverables
-+ list of hs seniors who previously did not meet exam requirements to graduate who now meet the new pathways exam requirements
-(along with their biographical information and best exam performances)
-	+ produced by [4]
-
-+ "soft lower bound" % of on-track hs seniors whose chances for graduation (via different exam choices) could be meangingfully improved by the new pathways exam requirements
-	+ numerator would be the count of students in [3b] union [3c] with minor modifications (e.g. grd9_entry_cde='Q' condition is added to [1], student_id not in conditions removed from [3b])
-	+ denominator would be the count of students in [1] with minor modifications (e.g. grd9_entry_cde='Q' condition is added to [1])
+deliverable
+list of hs seniors who previously did not meet exam requirements to graduate who now meet the new pathways exam requirements
+(along with their biographical information and best exam performances) produced by [4]
 */
 
 
