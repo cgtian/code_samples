@@ -32,6 +32,9 @@ deliverables
 (along with their biographical information and best exam performances)
 	+ produced by [4]
 
++ "soft lower bound" % of on-track hs seniors whose chances for graduation (via different exam choices) could be meangingfully improved by the new pathways exam requirements
+	+ numerator would be the count of students in [3b] union [3c] with minor modifications (e.g. grd9_entry_cde='Q' condition is added to [1], student_id not in conditions removed from [3b])
+	+ denominator would be the count of students in [1] with minor modifications (e.g. grd9_entry_cde='Q' condition is added to [1])
 */
 
 
