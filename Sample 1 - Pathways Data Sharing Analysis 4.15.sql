@@ -29,7 +29,7 @@ code outline
 
 deliverable
 list of hs seniors who previously did not meet exam requirements to graduate who now meet the new pathways exam requirements
-(along with their biographical information and best exam performances) produced by [4]
+(along with their biographical information and best exam performances): [4]
 */
 
 
