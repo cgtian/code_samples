@@ -20,13 +20,20 @@ code outline
 
 [5] various demographic breakdowns for active cohort r students who have taken or are taking algebra 2
 	[5a] race breakdown for active cohort r students who have taken or are taking algebra 2 
-	[5b] iep breakdown for active cohort r students who have taken or are taking algebra 2
-	[5c] ell breakdown for active cohort r students who have taken or are taking algebra 2
+	[5b] iep status breakdown for active cohort r students who have taken or are taking algebra 2
+	[5c] ell status breakdown for active cohort r students who have taken or are taking algebra 2
 
 [6] various demographic breakdowns for active cohort r students
 	[6a] race breakdown for active cohort r students
-	[6b] iep breakdown for active cohort r students
-	[6c] ell breakdown for active cohort r students
+	[6b] iep status breakdown for active cohort r students
+	[6c] ell status breakdown for active cohort r students
+
+deliverables
+% of schools offering high school level alg2 in 2014: [1]/[2]
+% of active cohort r students who have taken or are taking alg2: [3cii]/[4]
+%s of active cohort r students who have taken or are taking alg2 by race: [5a]/[6a]
+%s of active cohort r students who have taken or are taking alg2 by iep status: [5b]/[6b]
+%s of active cohort r students who have taken or are taking alg2 by ell status: [5c]/[6c]
 */
 
 
@@ -231,7 +238,7 @@ end
 
 
 
----[5b] iep breakdown for active cohort r students who have taken or are taking algebra 2
+---[5b] iep status breakdown for active cohort r students who have taken or are taking algebra 2
 select
 case when b.iep_spec_ed_flg='Y' then 'Student with Disabilities (IEP)'
 else NULL
@@ -254,7 +261,7 @@ end
 
 
 
----[5c] ell breakdown for active cohort r students who have taken or are taking algebra 2
+---[5c] ell status breakdown for active cohort r students who have taken or are taking algebra 2
 select
 case when b.lep_flg='Y' then 'ELL'
 when b.lep_flg='P' then 'Former ELL'
@@ -309,7 +316,7 @@ end
 
 
 
----[6b] iep breakdown for active cohort r students
+---[6b] iep status breakdown for active cohort r students
 select 
 case when b.iep_spec_ed_flg='Y' then 'Student with Disabilities (IEP)'
 else NULL
@@ -331,7 +338,7 @@ end
 
 
 
----[6c] ell breakdown for active cohort r students
+---[6c] ell status breakdown for active cohort r students
 select 
 case when b.lep_flg='Y' then 'ELL'
 when b.lep_flg='P' then 'Former ELL'
