@@ -1,5 +1,5 @@
 /*
-pathways data sharing pull for april 2015
+pathways data sharing analysis for april 2015
 
 description
 this analysis measures the immediate impact of the newly legislated pathways exam requirements on hs seniors' prospects for graduation
