@@ -95,7 +95,7 @@ as mark,
 
 row_number() over	(	
 				partition by student_id
-				order by student_id asc
+				order by student_id
 			)
 as index_studentid
 
