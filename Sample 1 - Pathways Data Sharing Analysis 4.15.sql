@@ -97,7 +97,7 @@ row_number() over	(
 				partition by student_id
 				order by student_id asc
 			)
-as index_all
+as index_studentid
 
 into #exam_list
 
@@ -130,13 +130,13 @@ mark,
 
 row_number() over	(	
 				partition by student_id, subject
-				order by student_id, subject, mark desc, index_all
+				order by student_id, subject, mark desc, index_studentid
 			)
 as index_studentid_subject,
 
 row_number() over	(
 				partition by student_id, subject_detail
-				order by student_id, subject_detail, mark desc, index_all
+				order by student_id, subject_detail, mark desc, index_studentid
 			)
 as index_studentid_subject_detail
 
