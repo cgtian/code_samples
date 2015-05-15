@@ -330,6 +330,7 @@ into #ct_ethnicity
 
 from #student_list
 
+group by
 case when ethnic_cde in ('2','C','D') then 'Asian'
 when ethnic_cde in ('3','A') then 'Hispanic'
 when ethnic_cde in ('4','E') then 'Black'
