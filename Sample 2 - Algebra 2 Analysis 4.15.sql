@@ -5,12 +5,12 @@ description
 this analysis measures the availability of algebra 2 courses for cohort r students (on-track hs juniors)
 
 code outline
-[1] number of schools offering high school level alg2 in 2014
+[1] number of schools offering high school level algebra 2 in 2014
 
-[2] number of schools scheduling high school course(s) in 2014
+[2] number of schools with active high school students in 2014
 
 [3] active cohort r students who have taken or are taking algebra 2
-	[3a] active cohort r students scheduled for alg2 in 2014
+	[3a] active cohort r students scheduled for algebra 2 in 2014
 	[3b] active cohort r students with algebra 2 on their transcripts
 	[3c] active cohort r students who have taken or are taking algebra 2
 		[3ci] active cohort r students who have taken or are taking algebra 2
@@ -29,23 +29,23 @@ code outline
 	[6c] ell status breakdown for active cohort r students
 
 [7] various measures of algebra 2 availability for cohort r students
-	[7a] percentage of schools offering high school level alg2 in 2014
-	[7b] percentages of active cohort r students who have taken or are taking alg2 by ethnicity
-	[7c] percentages of active cohort r students who have taken or are taking alg2 by iep status
-	[7d] percentages of active cohort r students who have taken or are taking alg2 by ell status
+	[7a] percentage of high schools offering algebra 2 in 2014
+	[7b] percentages of active cohort r students who have taken or are taking algebra 2 by ethnicity
+	[7c] percentages of active cohort r students who have taken or are taking algebra 2 by iep status
+	[7d] percentages of active cohort r students who have taken or are taking algebra 2 by ell status
 
 deliverables
-percentage of schools offering high school level alg2 in 2014: [7a]
-percentages of active cohort r students who have taken or are taking alg2 by race: [7b]
-percentages of active cohort r students who have taken or are taking alg2 by iep status: [7c]
-percentages of active cohort r students who have taken or are taking alg2 by ell status: [7d]
+percentage of high schools offering algebra 2 in 2014: [7a]
+percentages of active cohort r students who have taken or are taking algebra 2 by race: [7b]
+percentages of active cohort r students who have taken or are taking algebra 2 by iep status: [7c]
+percentages of active cohort r students who have taken or are taking algebra 2 by ell status: [7d]
 */
 
 
 
 
 
------[1] number of schools offering high school level alg2 in 2014
+-----[1] number of schools offering high school level algebra 2 in 2014
 if object_id('tempdb..#ct_schools_alg2') is not null drop table #ct_schools_alg2
 
 select
@@ -76,7 +76,7 @@ and substring(s.schooldbn,4,3)!='444'
 
 
 
------[2] number of schools scheduling high school course(s) in 2014
+-----[2] number of schools with active high school students in 2014
 if object_id('tempdb..#ct_schools') is not null drop table #ct_schools
 
 select
@@ -97,7 +97,7 @@ and substring(school_dbn,4,3)!='444'
 
 
 -----[3] active cohort r students who have taken or are taking algebra 2
----[3a] active cohort r students scheduled for alg2 in 2014
+---[3a] active cohort r students scheduled for algebra 2 in 2014
 if object_id('tempdb..#students_taking_alg2') is not null drop table #students_taking_alg2
 
 select distinct
@@ -154,7 +154,7 @@ and b.status='A'
 
 
 
----[3c] active cohort r students who have taken or are taking algebra 2 excluding irrelevant populations
+---[3c] active cohort r students who have taken or are taking algebra 2
 --[3ci] active cohort r students who have taken or are taking algebra 2
 if object_id('tempdb..#students_alg2_int') is not null drop table #students_alg2_int
 
@@ -384,7 +384,7 @@ end
 
 
 -----[7] various measures of algebra 2 availability for cohort r students
----[7a] percentage of schools offering high school level alg2 in 2014
+---[7a] percentage of high schools offering algebra 2 in 2014
 select
 sa.ct_schools_alg2,
 s.ct_schools,
@@ -396,7 +396,7 @@ cross join #schools as s
 
 
 
----[7b] percentages of active cohort r students who have taken or are taking alg2 by race
+---[7b] percentages of active cohort r students who have taken or are taking algebra 2 by race
 select
 ea.ct_students_alg2,
 e.ct_students,
@@ -409,7 +409,7 @@ on e.ethnicity=ea.ethnicity
 
 
 
----[7c] percentages of active cohort r students who have taken or are taking alg2 by iep status
+---[7c] percentages of active cohort r students who have taken or are taking algebra 2 by iep status
 select
 ia.ct_students_alg2,
 i.ct_students,
@@ -422,7 +422,7 @@ on i.iep_status=ia.iep_status
 
 
 
----[7d] percentages of active cohort r students who have taken or are taking alg2 by ell status
+---[7d] percentages of active cohort r students who have taken or are taking algebra 2 by ell status
 select
 ea.ct_students_alg2,
 e.ct_students,
