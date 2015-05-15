@@ -28,8 +28,7 @@ code outline
 [4] best exam performances for students who were one social studies exam away from meeting exam requirements pre-pathways who now meet exam requirements using the stem regents pathway
 
 deliverable
-list of hs seniors who previously did not meet exam requirements to graduate who now meet the new pathways exam requirements
-(along with their biographical information and best exam performances): [4]
+list of hs seniors who previously did not meet exam requirements to graduate who now meet the new pathways exam requirements: [4]
 */
 
 
@@ -37,7 +36,7 @@ list of hs seniors who previously did not meet exam requirements to graduate who
 
 
 -----[1] active 12th graders plus their biographical information
-if object_id('tempdb..#s') is not null drop table #s
+if object_id('tempdb..#student_list') is not null drop table #student_list
 
 select distinct
 student_id,
@@ -50,7 +49,7 @@ lep_flg,
 iep_spec_ed_flg,
 s504
 
-into #s
+into #student_list
 
 from bio_data
 
@@ -101,7 +100,7 @@ as index_studentid
 
 into #exam_list
 
-from #s as s
+from #student_list as s
 
 inner join student_marks as sm
 on s.student_id=sm.studentid
@@ -296,7 +295,7 @@ as ct_mixl
 
 into #exam_counts
 
-from #s as s
+from #student_list as s
 
 inner join #best_exams as be
 on be.student_id=s.student_id
@@ -327,7 +326,7 @@ as ct_exams_away_local_cs
 
 into #exams_away_local_cs
 
-from #s as s
+from #student_list as s
 
 inner join #best_exams as be
 on be.student_id=s.student_id
@@ -389,7 +388,7 @@ ealc.ct_exams_away_local_cs
 
 into #best_exams_plus_counts
 
-from #s as s
+from #student_list as s
 
 left join #best_exams as be
 on be.student_id=s.student_id
