@@ -33,8 +33,7 @@ Queries written for SQL Server 2012
 
 
 -----[1] Write syntax for left join, right join, inner join, outer join between table1 and table2. Define what each is doing.
-select
-distinct
+select distinct
 t1.orderid,
 t2.orderid,
 t2.ordertotal
