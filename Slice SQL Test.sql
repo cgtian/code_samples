@@ -66,7 +66,7 @@ select *
 from table1
 
 where
-itemdescription like '%LLC%'
+lower(itemdescription) like '%llc%'
 
 
 
@@ -74,6 +74,7 @@ itemdescription like '%LLC%'
 
 -----[4] Create a new table3 using table1 columns: itemID, date,  itemDescription and table2 columns orderTotal where orderTotal  is greater than 23.95.
 if object_id('tempdb..#table3') is not null drop table #table3
+
 select
 t1.itemid,
 t1.date,
@@ -86,7 +87,6 @@ from table1 as t1
 
 inner join table2 as t2
 on t2.orderid=t1.orderid
-and t2.date=t1.date
 
 where t2.ordertotal>23.95
 
@@ -226,8 +226,7 @@ into #market_sales_by_date
 from table1
 
 where
-productid='iPhone 5c'
-
+productid='iPhone 5c'		--'iPhone 5c' is a placeholder productid
 group by
 date
 
@@ -247,8 +246,8 @@ right join #market_sales_by_date as m
 on m.date=t1.date
 
 where
-t1.merchantid in ('Amazon','Apple')
-and t1.productid='iPhone 5c'
+t1.merchantid in ('Amazon','Apple')		--'Amazon' and 'Apple' are placeholder merchantids
+and t1.productid='iPhone 5c'			--'iPhone 5c' is a placeholder productid
 
 group by
 t1.merchantid,
