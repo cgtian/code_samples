@@ -66,7 +66,7 @@ select *
 from table1
 
 where
-lower(itemdescription) like '%llc%'
+lower(itemdescription) like '%llc%'		--assumes column is case sensitive
 
 
 
@@ -192,7 +192,7 @@ itemdescription
 from table1
 
 where
-lower(itemdescription) like '%baby%'
+lower(itemdescription) like '%baby%'			--assumes column is case sensitive
 or lower(itemdescription) like '%diaper%'
 or lower(itemdescription) like '%wipes%'
 or lower(itemdescription) like '%clean%'
