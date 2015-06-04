@@ -19,7 +19,7 @@ Some questions have missing specifics.  Make some assumptions.
 14.	Write a query to get the data to answer the question: “are amazon.com and/or radioshack.com losing or gaining iPhone 5c market share?”
 15.	What date had the most sales by total dollars.
 
-Table Schema
+Table Descriptions
 table1 - itemid***, itemdescription, price, quantity, shipperid, orderid, categoryid, productid, merchantid, date (date type), userid
 table2 - orderid***, date (date type), ordertotal
 ***for my responses, I assumed these were the PKs for the two tables (i.e. no composite PKs)
