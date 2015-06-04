@@ -16,8 +16,13 @@ Some questions have missing specifics.  Make some assumptions.
 11.	From the two tables, give the sum of orderTotals by Merchant.
 12.	Find all values in table1 itemDescription where there are any of the following expressions present singularly or in combination: "baby", "diaper", "wipes", "clean", "pull-ups".
 13.	What are some techniques to obfuscate personally identifiable information?
-14.	Write a query to get the data to answer the question: “are amazon.com and/or radioshack.com loosing or gaining iPhone 5c market share?”
+14.	Write a query to get the data to answer the question: “are amazon.com and/or radioshack.com losing or gaining iPhone 5c market share?”
 15.	What date had the most sales by total dollars.
+
+Table Schema
+table1 - itemid***, itemdescription, price, quantity, shipperid, orderid, categoryid, productid, merchantid, date (date type), userid
+table2 - orderid***, date (date type), ordertotal
+***for my responses, I assumed these were the PKs for the two tables (i.e. no composite PKs)
 
 Note
 Queries written for SQL Server 2012
@@ -66,7 +71,7 @@ select *
 from table1
 
 where
-lower(itemdescription) like '%llc%'		--assumes column is case sensitive
+lower(itemdescription) like '%llc%'		--assumes column is case sensitive (otherwise, remove lower() from condition)
 
 
 
@@ -122,8 +127,8 @@ if transaction count is then 0, makes all parts of the transaction permanent in 
 
 -----[8] What is a primary key, a foreign key?
 /*
-a primary key is a column (or set of columns) that uniquely identifies records in a table
-a foreign key is a column (or set of columns) in one table that is a primary key in another table
+a primary key is a column (or multiple columns) that uniquely identifies records in a table
+a foreign key is a column (or multiple columns) in one table that is a primary key in another table
 */
 
 
@@ -174,7 +179,7 @@ on t1.orderid=t2.orderid
 ---[11b] sum ordertotals by merchant
 select
 merchantid,
-sum(ordertotal)
+sum(ordertotal) as total_sales_by_merchant
 
 from #merchant_order_map
 
@@ -192,7 +197,7 @@ itemdescription
 from table1
 
 where
-lower(itemdescription) like '%baby%'			--assumes column is case sensitive
+lower(itemdescription) like '%baby%'			--assumes column is case sensitive (otherwise, remove lower() from condition)
 or lower(itemdescription) like '%diaper%'
 or lower(itemdescription) like '%wipes%'
 or lower(itemdescription) like '%clean%'
@@ -213,7 +218,7 @@ or lower(itemdescription) like '%pull-ups%'
 
 
 
-----[14] Write a query to get the data to answer the question: “are amazon.com and/or radioshack.com loosing or gaining iPhone 5c market share?”
+----[14] Write a query to get the data to answer the question: “are amazon.com and/or radioshack.com losing or gaining iPhone 5c market share?”
 ---[14a] find the total amount of money spent on iphones each day across the market as a whole
 if object_id('tempdb..#market_sales_by_date') is not null drop table #market_sales_by_date
 
@@ -227,36 +232,46 @@ from table1
 
 where
 productid='iPhone 5c'		--'iPhone 5c' is a placeholder productid
+
 group by
 date
 
 
 
----[14b] determine daily market share by merchant
+---[14b] determine daily iphone sales by merchant
+if object_id('tempdb..#merchant_sales_by_date') is not null drop table #merchant_sales_by_date
+
 select
-t1.merchantid,
-t1.date,
-sum(t1.price*t1.quantity) as merchant_sales_by_date,
-m.market_sales_by_date,
-sum(t1.price*t1.quantity)/m.market_sales_by_date as daily_market_share
+merchantid,
+date,
+sum(price*quantity) as merchant_sales_by_date,
 
-from table1 as t1
+into #merchant_sales_by_date
 
-right join #market_sales_by_date as m
-on m.date=t1.date
+from table1
 
 where
-t1.merchantid in ('Amazon','Apple')		--'Amazon' and 'Apple' are placeholder merchantids
-and t1.productid='iPhone 5c'			--'iPhone 5c' is a placeholder productid
+merchantid in ('Amazon','Apple')		--'Amazon' and 'Apple' are placeholder merchantids
+and productid='iPhone 5c'			--'iPhone 5c' is a placeholder productid
 
 group by
-t1.merchantid,
-t1.date,
-m.market_sales_by_date
+merchantid,
+date
 
-order by
-t1.merchantid,
-t1.date
+
+
+---[14c] create daily iphone market share by merchant
+select
+me.merchantid,
+ma.date,
+me.merchant_sales_by_date,
+ma.market_sales_by_date,
+me.merchant_sales_by_date/ma.market_sales_by_date as market_share_by_date
+
+from #market_sales_by_date as ma
+
+left join #merchant_sales_by_date as me
+on me.date=ma.date
 
 
 
@@ -265,7 +280,7 @@ t1.date
 -----[15] What date had the most sales by total dollars.
 select
 date,
-sum(ordertotal)
+sum(ordertotal) as total_sales_by_date
 
 from table2
 
