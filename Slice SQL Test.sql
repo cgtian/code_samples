@@ -210,7 +210,7 @@ or lower(itemdescription) like '%pull-ups%'
 -----[13] What are some techniques to obfuscate personally identifiable information?
 /*
 1) if PII is a primary key, randomly generate a new primary key and delete or null PII
-2) encryption
+2) encryption (some methods can preserve certain characteristics of PII w/o compromising user privacy)
 2) aggregation (when appropriate, mostly for reporting)
 */
 
@@ -244,7 +244,7 @@ if object_id('tempdb..#merchant_sales_by_date') is not null drop table #merchant
 select
 merchantid,
 date,
-sum(price*quantity) as merchant_sales_by_date,
+sum(price*quantity) as merchant_sales_by_date
 
 into #merchant_sales_by_date
 
