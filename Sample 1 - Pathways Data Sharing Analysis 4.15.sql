@@ -435,8 +435,7 @@ ct_mixr=4
 and (max_pbat_ss<65 or max_pbat_ss is null)
 and	(
 		(max_regents_global<65 or max_regents_global is null)
-		or 
-		(max_regents_us<65 or max_regents_us is null)
+		or (max_regents_us<65 or max_regents_us is null)
 	)
 and student_id not in (select student_id from #one_away_advanced)
 
@@ -517,10 +516,15 @@ and student_id not in (select student_id from #one_away_regents)
 
 
 -----[4] best exam performances for students who were one social studies exam away from meeting exam requirements pre-pathways who now meet exam requirements using the stem regents pathway
+---[4a] best exam performances for students who newly meet exam requirements for an advanced regents diploma
+if object_id('tempdb..#pathways_advanced') is not null drop table #pathways_advanced
+
 select *,
 0 as dummy_local_requirements,
 0 as dummy_regents_requirements,
 1 as dummy_advanced_requirements
+
+into #pathways_advanced
 
 from #best_exams_plus_counts
 
@@ -528,46 +532,90 @@ where
 student_id in (select student_id from #one_away_advanced)
 and ct_regents_science65>=3
 
-union
+
+
+---[4b] best exam performances for students who newly meet exam requirements for a regents diploma
+if object_id('tempdb..#pwathways_regents') is not null drop table #pathways_regents
 
 select *,
 0 as dummy_local_requirements,
 1 as dummy_regents_requirements,
 0 as dummy_advanced_requirements
 
+into #pathways_regents
+
 from #best_exams_plus_counts
 
 where
-student_id in (select student_id from #one_away_regents)
-and max_regents_second_stem>=65
+(	
+	student_id in (select student_id from #one_away_regents)
+	and max_regents_second_stem>=65
+)
+or
+(
+	student_id in (select student_id from #one_away_advanced)
+	and student_id not in (select student_id from #pathways_advanced)
+)		
 
-union
+
+
+---[4c] best exam performances for students who newly meet exam requirements for a local diploma
+if object_id('tempdb..#pathways_local') is not null drop table #pathways_local
 
 select *,
 1 as dummy_local_requirements,
 0 as dummy_regents_requirements,
 0 as dummy_advanced_requirements
 
+into #pathways_local
+
 from #best_exams_plus_counts
 
 where
-student_id in (select student_id from #one_away_local)
-and	(
-		(
-			ct_mixl=4
-			and max_regents_second_stem>=55
+(
+	student_id in (select student_id from #one_away_local)
+	or	(
+			student_id in (select student_id from #one_away_regents)
+			and student_id not in (select student_id from #pathways_regents)
+			and iep_spec_ed_flg='Y'
 		)
-		or
-		(
-			ct_exams_away_local_cs=1
-			and max_regents_english>=55
-			and max_regents_math>=55
-			and max_regents_ss>=45
-			and max_regents_science>=45
-			and max_regents_second_stem>=45
-			and ct_regents45to55_star<=ct_regents65_star
-		)
+)
+and
+(
+	(
+		ct_mixl=4
+		and max_regents_second_stem>=55
 	)
+	or
+	(
+		ct_exams_away_local_cs=1
+		and max_regents_english>=55
+		and max_regents_math>=55
+		and max_regents_ss>=45
+		and max_regents_science>=45
+		and max_regents_second_stem>=45
+		and ct_regents45to55_star<=ct_regents65_star
+	)
+)
+
+
+
+---[4d] best exam performances for students who were one social studies exam away from meeting exam requirements pre-pathways who now meet exam requirements using the stem regents pathway
+select *
+
+from #pathways_advanced
+
+union
+
+select *
+
+from #pathways_regents
+
+union
+
+select *
+
+from #pathways_local
 
 order by
 dummy_advanced_requirements,
