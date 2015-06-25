@@ -26,9 +26,13 @@ code outline
 		[3cii] students who are one social studies exam away from meeting exam requirements for a local diploma (assuming future exams result in scores between 55 and 64 inclusive)
 	
 [4] best exam performances for students who were one social studies exam away from meeting exam requirements pre-pathways who now meet exam requirements using the stem regents pathway
+	[4a] best exam performances for students who newly meet exam requirements for an advanced regents diploma
+	[4b] best exam performances for students who newly meet exam requirements for a regents diploma
+	[4c] best exam performances for students who newly meet exam requirements for a local diploma
+	[4d] best exam performances for students who were one social studies exam away from meeting exam requirements pre-pathways who now meet exam requirements using the stem regents pathway
 
 deliverable
-list of hs seniors who previously did not meet exam requirements to graduate who now meet the new pathways exam requirements: [4]
+list of hs seniors who previously did not meet exam requirements to graduate who now meet the new pathways exam requirements: [4d]
 */
 
 
